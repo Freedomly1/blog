@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>阿飞日记</title>
+    <link>https://freedomly1.github.io/blog/</link>
+    <description>一个前端工程师的公开笔记。写界面与工程，也写正在折腾的 AI 工作台——把爬虫、笔记、写稿收进同一条流水线。</description>
+    <language>zh-CN</language>
+    <copyright>© 2026 阿飞日记</copyright>
+    <lastBuildDate>Mon, 23 Nov 2026 09:00:00 +0800</lastBuildDate>
+    <atom:link href="https://freedomly1.github.io/blog/feed.xml" rel="self" type="application/rss+xml"/>
+
+    <item>
+      <title>给机器人装上眼睛：一次从遥控到视觉闭环的复盘</title>
+      <link>https://freedomly1.github.io/blog/#/post/robot-vision</link>
+      <guid isPermaLink="false">afei-robot-vision</guid>
+      <pubDate>Mon, 23 Nov 2026 09:00:00 +0800</pubDate>
+      <category>前端工程</category>
+      <description>固件看门狗与 500ms 心跳的账、把转发地址填成自己后 4 秒 11932 次请求、以及为什么视觉该放在浏览器里而不是服务端。</description>
+    </item>
+
+    <item>
+      <title>《沉思录》：一个皇帝写给自己的备忘录</title>
+      <link>https://freedomly1.github.io/blog/#/post/meditations</link>
+      <guid isPermaLink="false">afei-meditations</guid>
+      <pubDate>Wed, 18 Nov 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>这本书没有读者，因为作者不打算给任何人看。正因如此，它比所有鸡汤都诚实——它不劝你豁达，只提醒你哪些事根本不归你管。</description>
+    </item>
+
+    <item>
+      <title>《活着》：把「活着」读成动词</title>
+      <link>https://freedomly1.github.io/blog/#/post/to-live</link>
+      <guid isPermaLink="false">afei-to-live</guid>
+      <pubDate>Mon, 16 Nov 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>余华写了一个人把身边所有人送走的故事。读完那晚我在阳台站了很久，想的不是苦难，而是人为什么还能笑得出来。</description>
+    </item>
+
+    <item>
+      <title>《乡土中国》：为什么中国人的关系像水波纹</title>
+      <link>https://freedomly1.github.io/blog/#/post/from-the-soil</link>
+      <guid isPermaLink="false">afei-from-the-soil</guid>
+      <pubDate>Fri, 13 Nov 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>费孝通 1947 年写下的「差序格局」，解释了我为什么至今不知道怎么跟亲戚解释我的工作。</description>
+    </item>
+
+    <item>
+      <title>重新学会阅读：一年读完 40 本书之后</title>
+      <link>https://freedomly1.github.io/blog/#/post/reading-40-books</link>
+      <guid isPermaLink="false">afei-reading-40-books</guid>
+      <pubDate>Thu, 12 Nov 2026 09:00:00 +0800</pubDate>
+      <category>阅读笔记</category>
+      <description>我把阅读从「必须读完」的 KPI，改成了一件随时可以放下的事。这是我这一年摸索出的四条规则，以及 6 本值得反复读的书。</description>
+    </item>
+
+    <item>
+      <title>《思考，快与慢》：你的大脑有两个系统，一个很懒</title>
+      <link>https://freedomly1.github.io/blog/#/post/thinking-fast-and-slow</link>
+      <guid isPermaLink="false">afei-thinking-fast-and-slow</guid>
+      <pubDate>Tue, 10 Nov 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>卡尼曼用一辈子研究「人为什么会犯蠢」，结论是：不是不够聪明，是系统一太省电。</description>
+    </item>
+
+    <item>
+      <title>《局外人》：那个不肯表演的人</title>
+      <link>https://freedomly1.github.io/blog/#/post/the-stranger</link>
+      <guid isPermaLink="false">afei-the-stranger</guid>
+      <pubDate>Fri, 06 Nov 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>默尔索死于不哭，而不是杀人。重读之后我发现，真正被审判的是「不合群」这件事本身。</description>
+    </item>
+
+    <item>
+      <title>《人类简史》：为什么我们愿意相信不存在的东西</title>
+      <link>https://freedomly1.github.io/blog/#/post/sapiens</link>
+      <guid isPermaLink="false">afei-sapiens</guid>
+      <pubDate>Mon, 02 Nov 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>公司、国家、钱，都是集体想象。赫拉利把这层窗户纸捅破了，然后我们都装作没看见。</description>
+    </item>
+
+    <item>
+      <title>《被讨厌的勇气》：一切烦恼都来自人际关系</title>
+      <link>https://freedomly1.github.io/blog/#/post/courage-to-be-disliked</link>
+      <guid isPermaLink="false">afei-courage-to-be-disliked</guid>
+      <pubDate>Fri, 30 Oct 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>阿德勒心理学最刺人的地方，是它不让你怪任何人——包括你的过去。</description>
+    </item>
+
+    <item>
+      <title>用容器查询重写响应式布局</title>
+      <link>https://freedomly1.github.io/blog/#/post/container-queries</link>
+      <guid isPermaLink="false">afei-container-queries</guid>
+      <pubDate>Wed, 28 Oct 2026 09:00:00 +0800</pubDate>
+      <category>前端工程</category>
+      <description>媒体查询问的是「屏幕多宽」，容器查询问的是「我还有多少空间」。后者才是组件真正需要的答案——一个做了六年响应式的人的反省。</description>
+    </item>
+
+    <item>
+      <title>《瓦尔登湖》：一个人到底需要多少钱才能活</title>
+      <link>https://freedomly1.github.io/blog/#/post/walden</link>
+      <guid isPermaLink="false">afei-walden</guid>
+      <pubDate>Sun, 25 Oct 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>梭罗在湖边住了两年两个月零两天，算了一笔很具体的账。这笔账今天看依然扎人。</description>
+    </item>
+
+    <item>
+      <title>《自私的基因》：你不是你，你是基因的载具</title>
+      <link>https://freedomly1.github.io/blog/#/post/selfish-gene</link>
+      <guid isPermaLink="false">afei-selfish-gene</guid>
+      <pubDate>Tue, 20 Oct 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>道金斯在结尾写了一句让人起鸡皮疙瘩的话。它既是科学的冷，也是人文的热。</description>
+    </item>
+
+    <item>
+      <title>《百年孤独》的第一句，为什么能教人写小说</title>
+      <link>https://freedomly1.github.io/blog/#/post/one-hundred-years</link>
+      <guid isPermaLink="false">afei-one-hundred-years</guid>
+      <pubDate>Thu, 15 Oct 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>「多年以后，面对行刑队……」——一句话里塞了三个时间。我把它拆开看，发现了一个能直接用的写作技巧。</description>
+    </item>
+
+    <item>
+      <title>《枪炮、病菌与钢铁》：一个被误读最狠的答案</title>
+      <link>https://freedomly1.github.io/blog/#/post/guns-germs-steel</link>
+      <guid isPermaLink="false">afei-guns-germs-steel</guid>
+      <pubDate>Sun, 11 Oct 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>戴蒙德回答了一个学生的问题：为什么是欧亚人征服了世界，而不是反过来？答案和「人种优劣」毫无关系。</description>
+    </item>
+
+    <item>
+      <title>留白不是空：界面节奏的三个层次</title>
+      <link>https://freedomly1.github.io/blog/#/post/whitespace</link>
+      <guid isPermaLink="false">afei-whitespace</guid>
+      <pubDate>Fri, 09 Oct 2026 09:00:00 +0800</pubDate>
+      <category>设计随笔</category>
+      <description>新手用留白填不满，老手用留白做秩序。间距不是美术问题，它是信息层级的一部分。</description>
+    </item>
+
+    <item>
+      <title>《理想国》的洞穴：你看到的是世界，还是墙上的影子</title>
+      <link>https://freedomly1.github.io/blog/#/post/republic</link>
+      <guid isPermaLink="false">afei-republic</guid>
+      <pubDate>Mon, 05 Oct 2026 09:00:00 +0800</pubDate>
+      <category>书摘</category>
+      <description>柏拉图写这个寓言的时候没有屏幕。两千四百年后，我们自愿走回洞里，还付了会员费。</description>
+    </item>
+
+    <item>
+      <title>我的 2026 工作流：从收集到输出</title>
+      <link>https://freedomly1.github.io/blog/#/post/workflow-2026</link>
+      <guid isPermaLink="false">afei-workflow-2026</guid>
+      <pubDate>Mon, 21 Sep 2026 09:00:00 +0800</pubDate>
+      <category>效率方法</category>
+      <description>信息不是资产，处理过的信息才是。这是我用了三年、只改过两次的一套流程：一个入口、每天十分钟、只推三件事。</description>
+    </item>
+
+    <item>
+      <title>把博客当作第二大脑</title>
+      <link>https://freedomly1.github.io/blog/#/post/blog-as-second-brain</link>
+      <guid isPermaLink="false">afei-blog-as-second-brain</guid>
+      <pubDate>Thu, 03 Sep 2026 09:00:00 +0800</pubDate>
+      <category>效率方法</category>
+      <description>我从笔记软件搬回了博客。理由不是情怀，是「公开」这件事本身会改变你写东西的方式。</description>
+    </item>
+
+    <item>
+      <title>Vite 构建优化：从 12 秒到 2.8 秒</title>
+      <link>https://freedomly1.github.io/blog/#/post/vite-build-optimization</link>
+      <guid isPermaLink="false">afei-vite-build-optimization</guid>
+      <pubDate>Sun, 16 Aug 2026 09:00:00 +0800</pubDate>
+      <category>前端工程</category>
+      <description>一次没有换框架、没有上微前端的优化。四个改动，构建时间降到四分之一，首屏 JS 砍掉三分之二。</description>
+    </item>
+
+    <item>
+      <title>小城散步的五个下午</title>
+      <link>https://freedomly1.github.io/blog/#/post/five-afternoons</link>
+      <guid isPermaLink="false">afei-five-afternoons</guid>
+      <pubDate>Thu, 30 Jul 2026 09:00:00 +0800</pubDate>
+      <category>生活切片</category>
+      <description>没有目的地的走路，是这个夏天最好的休息。菜市场、旧书店、河堤、中学门口，以及一场雨。</description>
+    </item>
+
+    <item>
+      <title>《深度工作》：注意力是新的稀缺资源</title>
+      <link>https://freedomly1.github.io/blog/#/post/deep-work</link>
+      <guid isPermaLink="false">afei-deep-work</guid>
+      <pubDate>Sat, 11 Jul 2026 09:00:00 +0800</pubDate>
+      <category>阅读笔记</category>
+      <description>五年前第一次读这本书，我记住的是方法；这次重读，我划下的全是另一类句子——关于「为什么」。</description>
+    </item>
+
+    <item>
+      <title>写给三年前的自己：关于坚持写东西</title>
+      <link>https://freedomly1.github.io/blog/#/post/letter-to-myself</link>
+      <guid isPermaLink="false">afei-letter-to-myself</guid>
+      <pubDate>Mon, 22 Jun 2026 09:00:00 +0800</pubDate>
+      <category>生活切片</category>
+      <description>你在第一篇博客里写「希望以后能一直写下去」。三年过去了，我来说说结果——它和你想的不太一样。</description>
+    </item>
+
+    <item>
+      <title>本地优先：为什么我把数据放回自己的硬盘</title>
+      <link>https://freedomly1.github.io/blog/#/post/local-first</link>
+      <guid isPermaLink="false">afei-local-first</guid>
+      <pubDate>Fri, 05 Jun 2026 09:00:00 +0800</pubDate>
+      <category>效率方法</category>
+      <description>云端很方便，但「方便」不该以「失去控制权」为代价。这是我现在的工具组合，以及为此付出的代价。</description>
+    </item>
+  </channel>
+</rss>
