@@ -25,7 +25,7 @@ blog/
 │  ├─ posts.js         站点配置、分类、每篇文章的元数据
 │  └─ app.js           路由、Markdown 渲染、搜索、评论、收藏……
 ├─ feed.xml            RSS 2.0 订阅源
-├─ preview/            本地截图（home.png / post.png / books.png，不入库）
+├─ preview/            截图（home.png / post.png / books.png）
 └─ README.md           本文件
 ```
 
