@@ -1964,12 +1964,14 @@ a.tag:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accen
 
 /* 1. 页面底色：纯暗色 + 极淡的紫金辉光，不再铺照片 */
 body {
-  background: var(--bg);
+  /* 科比球场图做背景：图挂了自动退回纯色 */
+  background: url("bg-court.jpg") center top / cover no-repeat fixed, var(--bg);
 }
 body::before {
   background:
-    radial-gradient(1200px 640px at 84% -10%, color-mix(in srgb, #8b5cf6 22%, transparent), transparent 68%),
-    radial-gradient(900px 520px at 2% 6%, color-mix(in srgb, #f2c14e 12%, transparent), transparent 66%);
+    radial-gradient(1200px 640px at 84% -10%, color-mix(in srgb, #8b5cf6 18%, transparent), transparent 68%),
+    radial-gradient(900px 520px at 2% 6%, color-mix(in srgb, #f2c14e 10%, transparent), transparent 66%),
+    linear-gradient(180deg, rgba(21, 14, 38, .82), rgba(21, 14, 38, .93));
 }
 
 /* 2. 首屏：全幅科比大图，左侧压暗放标题 */

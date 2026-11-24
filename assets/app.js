@@ -329,7 +329,7 @@
       '<span class="bc-sub">' + esc(b.author) + ' · ' + esc(b.year) + '</span>' +
       '<span class="bc-row"><span class="stars">' + stars(b.rating) + '</span><span class="bc-field">' + esc(b.field) + '</span></span>' +
       '<span class="bc-note">' + esc(b.note) + '</span>' +
-      '<span class="bc-link">' + p.quotes + ' 段摘录 →</span>' +
+      '<span class="bc-link">阅读全文 →</span>' +
       '</span></a>';
   }
 
@@ -429,7 +429,7 @@
       '</section>' +
 
       (bookPosts.length ? '<section class="section">' +
-        secHead('书架上的摘录', '<a class="more" href="#/books">全部 ' + bookPosts.length + ' 本 →</a>') +
+        secHead('书架上的教程', '<a class="more" href="#/books">全部 ' + bookPosts.length + ' 本 →</a>') +
         '<div class="book-grid book-grid--home">' + bookPosts.slice(0, 4).map(bookCard).join('') + '</div>' +
         '</section>' : '') +
 
@@ -676,8 +676,8 @@
 
     return '<div class="wrap">' +
       '<header class="page-head"><h1>书架</h1>' +
-      '<p>这里放我从书里摘下来的句子。引文只取一两句，批注才是正文——摘录是别人的，回声是自己的。</p>' +
-      '<p class="count">' + bookPosts.length + ' 本 · ' + totalQuotes + ' 段摘录 · ' + bookFields.length + ' 个领域</p>' +
+      '<p>三条学习线：C/C++ 打底、Python 上手、AI 用得明白。每本对应一篇可操作的实战笔记，代码都能直接跑。</p>' +
+      '<p class="count">' + bookPosts.length + ' 本 · ' + bookFields.length + ' 个领域 · 全部可运行</p>' +
       '<div class="chips">' + chips + '</div></header>' +
       (shown.length ? '<div class="book-grid">' + shown.map(bookCard).join('') + '</div>'
         : '<div class="empty">这个领域还没有摘录。</div>') +
