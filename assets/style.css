@@ -2278,3 +2278,11 @@ html, body { overflow-x: hidden; }
   border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
   white-space: nowrap;
 }
+
+/* 子方向筛选行（网络安全内部细分） */
+.chips-sub {
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-2);
+}
+.chips-sub .chip { font-size: 12px; }

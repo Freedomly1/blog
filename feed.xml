@@ -182,7 +182,7 @@
       <link>https://freedomly1.github.io/blog/#/post/bin-stack-overflow</link>
       <guid isPermaLink="false">afei-bin-stack-overflow</guid>
       <pubDate>Wed, 11 Nov 2026 09:00:00 +0800</pubDate>
-      <category>二进制安全</category>
+      <category>网络安全</category>
       <description>栈溢出是最经典的二进制漏洞，也是最考基本功的一个。这篇从 x86-64 的调用约定讲起，解释栈帧布局、为什么 gets 危险、返回地址怎么被覆盖，以及在靶场里如何稳定复现。</description>
     </item>
     <item>
@@ -198,7 +198,7 @@
       <link>https://freedomly1.github.io/blog/#/post/bin-protections</link>
       <guid isPermaLink="false">afei-bin-protections</guid>
       <pubDate>Tue, 10 Nov 2026 09:00:00 +0800</pubDate>
-      <category>二进制安全</category>
+      <category>网络安全</category>
       <description>同一个溢出漏洞，在不同保护组合下利用难度完全不同。这篇把五类机制的原理、检查方法（checksec）与绕过思路讲清，并说明为什么它们只是「提高成本」而非「根治」。</description>
     </item>
     <item>
@@ -206,7 +206,7 @@
       <link>https://freedomly1.github.io/blog/#/post/bin-rop</link>
       <guid isPermaLink="false">afei-bin-rop</guid>
       <pubDate>Mon, 09 Nov 2026 09:00:00 +0800</pubDate>
-      <category>二进制安全</category>
+      <category>网络安全</category>
       <description>NX 让栈不可执行，ROP 的答案是「不写新代码，只复用旧代码」。这篇讲 gadget 的构成、如何用 ROPgadget 找片段、x86-64 调用约定下的链构造，以及 ret2libc 与 ret2csu 的区别。</description>
     </item>
     <item>
@@ -214,7 +214,7 @@
       <link>https://freedomly1.github.io/blog/#/post/bin-ghidra</link>
       <guid isPermaLink="false">afei-bin-ghidra</guid>
       <pubDate>Sun, 08 Nov 2026 09:00:00 +0800</pubDate>
-      <category>二进制安全</category>
+      <category>网络安全</category>
       <description>拿到一个二进制，第一件事不是跑起来，而是搞清它做什么。这篇讲 Ghidra 的完整工作流：导入、识别函数、还原结构体、追交叉引用、重命名与注释，以及如何与 objdump、strings 配合。</description>
     </item>
     <item>
@@ -222,7 +222,7 @@
       <link>https://freedomly1.github.io/blog/#/post/rev-pe-elf</link>
       <guid isPermaLink="false">afei-rev-pe-elf</guid>
       <pubDate>Sat, 07 Nov 2026 09:00:00 +0800</pubDate>
-      <category>逆向分析</category>
+      <category>网络安全</category>
       <description>逆向的第一课是看懂文件格式。这篇对比 PE 与 ELF 的头部结构、节区/段的作用、导入导出表与重定位，并给出用 readelf、objdump、PEBear 逐层拆解的实操步骤。</description>
     </item>
     <item>
@@ -238,7 +238,7 @@
       <link>https://freedomly1.github.io/blog/#/post/rev-packing</link>
       <guid isPermaLink="false">afei-rev-packing</guid>
       <pubDate>Fri, 06 Nov 2026 09:00:00 +0800</pubDate>
-      <category>逆向分析</category>
+      <category>网络安全</category>
       <description>加壳把真实代码压缩或加密，运行时再解出来。这篇讲壳的分类、如何用区段名与熵值判断加壳、UPX 的常规脱壳，以及手工脱壳的关键两步（找 OEP、dump 修复）。</description>
     </item>
     <item>
@@ -246,7 +246,7 @@
       <link>https://freedomly1.github.io/blog/#/post/rev-sandbox</link>
       <guid isPermaLink="false">afei-rev-sandbox</guid>
       <pubDate>Thu, 05 Nov 2026 09:00:00 +0800</pubDate>
-      <category>逆向分析</category>
+      <category>网络安全</category>
       <description>分析恶意样本的第一原则是隔离。这篇讲沙箱环境怎么搭（断网、快照、监控）、要采集哪五类证据、如何用行为链还原攻击意图，以及样本常见的反沙箱手段与应对。</description>
     </item>
     <item>
@@ -254,7 +254,7 @@
       <link>https://freedomly1.github.io/blog/#/post/ctf-web-route</link>
       <guid isPermaLink="false">afei-ctf-web-route</guid>
       <pubDate>Wed, 04 Nov 2026 09:00:00 +0800</pubDate>
-      <category>CTF 实战</category>
+      <category>网络安全</category>
       <description>Web 题是 CTF 里入门最快的方向，但也是最容易陷入「只会套工具」的方向。这篇给一条分阶段路线：基础三类题、进阶五类题、代码审计与利用链，配每日训练量与复盘方法。</description>
     </item>
     <item>
@@ -262,7 +262,7 @@
       <link>https://freedomly1.github.io/blog/#/post/ctf-pwn-route</link>
       <guid isPermaLink="false">afei-ctf-pwn-route</guid>
       <pubDate>Tue, 03 Nov 2026 09:00:00 +0800</pubDate>
-      <category>CTF 实战</category>
+      <category>网络安全</category>
       <description>Pwn 是最考基本功的方向：汇编、内存布局、调用约定、调试能力缺一不可。这篇给一条从「看懂 checksec」到「堆利用入门」的路线，并说明每阶段该刷什么题、该掌握哪些套路。</description>
     </item>
     <item>
@@ -278,7 +278,7 @@
       <link>https://freedomly1.github.io/blog/#/post/ctf-crypto-route</link>
       <guid isPermaLink="false">afei-ctf-crypto-route</guid>
       <pubDate>Mon, 02 Nov 2026 09:00:00 +0800</pubDate>
-      <category>CTF 实战</category>
+      <category>网络安全</category>
       <description>Crypto 题不考「会不会写代码」，考的是「能不能看出这题在考什么」。这篇讲编码/古典/现代密码的分层训练法、常见攻击场景（小指数、共模、广播、Padding Oracle），以及数学补到什么程度够用。</description>
     </item>
     <item>
@@ -286,7 +286,7 @@
       <link>https://freedomly1.github.io/blog/#/post/intra-kerberos</link>
       <guid isPermaLink="false">afei-intra-kerberos</guid>
       <pubDate>Sun, 01 Nov 2026 09:00:00 +0800</pubDate>
-      <category>内网渗透</category>
+      <category>网络安全</category>
       <description>内网渗透绕不开 Kerberos。这篇讲清 TGT/TGS 的签发流程、PAC 与 SPN 的作用，再对应讲到四种经典滥用（Kerberoasting、AS-REP Roasting、票据传递、委派），并给出检测点。</description>
     </item>
     <item>
@@ -294,7 +294,7 @@
       <link>https://freedomly1.github.io/blog/#/post/intra-recon</link>
       <guid isPermaLink="false">afei-intra-recon</guid>
       <pubDate>Sat, 31 Oct 2026 09:00:00 +0800</pubDate>
-      <category>内网渗透</category>
+      <category>网络安全</category>
       <description>进入内网后，第一件事是搞清楚「我在哪、周围有什么、谁能通向域控」。这篇讲主机信息、域内枚举、BloodHound 的攻击路径分析，以及如何把零散信息整理成可执行的攻击图。</description>
     </item>
     <item>
@@ -310,7 +310,7 @@
       <link>https://freedomly1.github.io/blog/#/post/intra-lateral</link>
       <guid isPermaLink="false">afei-intra-lateral</guid>
       <pubDate>Thu, 29 Oct 2026 09:00:00 +0800</pubDate>
-      <category>内网渗透</category>
+      <category>网络安全</category>
       <description>横向是「渗透是否严重」的分水岭。这篇讲四类横向手法（远程执行、凭据复用、票据、代理隧道）、各自的日志特征，以及蓝队如何用「异常登录 + 异常服务创建」把它们抓出来。</description>
     </item>
     <item>
@@ -326,7 +326,7 @@
       <link>https://freedomly1.github.io/blog/#/post/win-kernel-basics</link>
       <guid isPermaLink="false">afei-win-kernel-basics</guid>
       <pubDate>Wed, 28 Oct 2026 09:00:00 +0800</pubDate>
-      <category>Windows 内核</category>
+      <category>网络安全</category>
       <description>内核漏洞难在「看不见」：用户态程序的一举一动都有 API 兜着，内核里的错误直接蓝屏。这篇讲清内核对象、驱动加载、IRP 与 SSDT 的作用，以及为什么一个参数校验缺失就是提权。</description>
     </item>
     <item>
@@ -334,7 +334,7 @@
       <link>https://freedomly1.github.io/blog/#/post/win-driver-ioctl</link>
       <guid isPermaLink="false">afei-win-driver-ioctl</guid>
       <pubDate>Tue, 27 Oct 2026 09:00:00 +0800</pubDate>
-      <category>Windows 内核</category>
+      <category>网络安全</category>
       <description>驱动漏洞八成出在 IOCTL 处理函数里。这篇讲清三种缓冲方式（Buffered/Direct/Neither）、控制码的构造、以及四类最常见的校验缺失——每种都配一段「错误写法 vs 正确写法」。</description>
     </item>
     <item>
@@ -342,7 +342,7 @@
       <link>https://freedomly1.github.io/blog/#/post/win-kernel-exploit</link>
       <guid isPermaLink="false">afei-win-kernel-exploit</guid>
       <pubDate>Mon, 26 Oct 2026 09:00:00 +0800</pubDate>
-      <category>Windows 内核</category>
+      <category>网络安全</category>
       <description>拿到内核任意写之后要做什么？这篇讲利用链的三个阶段（稳定触发、定位目标、修改对象），Token 替换与 PreviousMode 两种提权路径，以及现代缓解下为什么越来越难。</description>
     </item>
     <item>
@@ -358,7 +358,7 @@
       <link>https://freedomly1.github.io/blog/#/post/iot-firmware</link>
       <guid isPermaLink="false">afei-iot-firmware</guid>
       <pubDate>Sun, 25 Oct 2026 09:00:00 +0800</pubDate>
-      <category>固件与 IoT</category>
+      <category>网络安全</category>
       <description>IoT 安全的第一步是拿到固件。这篇讲三条获取路径（厂商下载、OTA 抓包、SPI Flash 读取）、binwalk 解包流程、常见文件系统（squashfs/UBIFS/JFFS2）的处理，以及解包失败时怎么办。</description>
     </item>
     <item>
@@ -366,7 +366,7 @@
       <link>https://freedomly1.github.io/blog/#/post/iot-vuln</link>
       <guid isPermaLink="false">afei-iot-vuln</guid>
       <pubDate>Sat, 24 Oct 2026 09:00:00 +0800</pubDate>
-      <category>固件与 IoT</category>
+      <category>网络安全</category>
       <description>IoT 漏洞高度集中：命令注入、硬编码凭据、未授权接口、升级校验缺失。这篇讲每一类的成因、在固件里怎么定位、如何在本地模拟环境验证，以及厂商该怎么修。</description>
     </item>
     <item>
@@ -374,7 +374,7 @@
       <link>https://freedomly1.github.io/blog/#/post/iot-hardware</link>
       <guid isPermaLink="false">afei-iot-hardware</guid>
       <pubDate>Fri, 23 Oct 2026 09:00:00 +0800</pubDate>
-      <category>固件与 IoT</category>
+      <category>网络安全</category>
       <description>固件加密拿不到？那就在硬件上找突破口。这篇讲万用表找 UART 的四根线、JTAG 识别与 OpenOCD 连接、SPI Flash 直接读取，以及拿到 shell 后能做什么。</description>
     </item>
     <item>
@@ -382,7 +382,7 @@
       <link>https://freedomly1.github.io/blog/#/post/mal-family</link>
       <guid isPermaLink="false">afei-mal-family</guid>
       <pubDate>Thu, 22 Oct 2026 09:00:00 +0800</pubDate>
-      <category>样本分析</category>
+      <category>网络安全</category>
       <description>同一家族的样本往往共享代码、配置格式与基础设施。这篇讲归因的四个维度（代码、字符串、网络、TTP）、相似度计算方法（ssdeep、imphash、BinDiff），以及如何避免「看起来像就归一类」的误判。</description>
     </item>
     <item>
@@ -390,7 +390,7 @@
       <link>https://freedomly1.github.io/blog/#/post/mal-yara</link>
       <guid isPermaLink="false">afei-mal-yara</guid>
       <pubDate>Wed, 21 Oct 2026 09:00:00 +0800</pubDate>
-      <category>样本分析</category>
+      <category>网络安全</category>
       <description>YARA 是样本检测的通用语言。这篇讲规则的四段结构、字符串选型（文本/十六进制/正则）、条件写法、性能与误报控制，并给三条可直接落地的规则模板。</description>
     </item>
     <item>
@@ -406,7 +406,7 @@
       <link>https://freedomly1.github.io/blog/#/post/mal-report</link>
       <guid isPermaLink="false">afei-mal-report</guid>
       <pubDate>Tue, 20 Oct 2026 09:00:00 +0800</pubDate>
-      <category>样本分析</category>
+      <category>网络安全</category>
       <description>分析完不写报告，等于没做。这篇讲报告的标准结构（摘要/行为/技术/IOС/建议）、IOC 的分级与有效期、如何把样本接入检测体系，以及团队级的样本库怎么建。</description>
     </item>
     <item>
@@ -497,6 +497,7 @@
       <category>效率方法</category>
       <description>云端很方便，但「方便」不该以「失去控制权」为代价。这是我现在的工具组合，以及为此付出的代价。</description>
     </item>
+
 
 
 

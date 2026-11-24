@@ -48,6 +48,7 @@
       dateObj: parseDate(p.date),
       category: p.category,
       level: p.level || '',
+      track: p.track || '',
       tags: p.tags || [],
       c1: p.c1,
       c2: p.c2,
@@ -63,6 +64,12 @@
   }).sort(function (a, b) { return b.dateObj - a.dateObj; });
 
   posts.forEach(function (p, i) { p.no = i + 1; });
+
+  var trackList = (window.BLOG_TRACK_ORDER || []).filter(function (t) {
+    return posts.some(function (p) { return p.track === t; });
+  }).map(function (t) {
+    return { name: t, count: posts.filter(function (p) { return p.track === t; }).length };
+  });
 
   var bySlug = {};
   posts.forEach(function (p) { bySlug[p.slug] = p; });
@@ -506,17 +513,27 @@
     return out + '</nav>';
   }
 
-  function viewFiltered(title, desc, list, activeCat) {
+  function viewFiltered(title, desc, list, activeCat, activeTrack, tracks) {
     var chips = '<a class="chip" href="#/posts">全部</a>' +
       catList.map(function (c) {
         return '<a class="chip' + (c.name === activeCat ? ' on' : '') + '" href="#/category/' + encodeURIComponent(c.name) + '">' +
           esc(c.name) + ' <b>' + pad(c.count) + '</b></a>';
       }).join('');
 
+    var trackChips = '';
+    if (tracks) {
+      trackChips = '<div class="chips chips-sub">' +
+        '<a class="chip' + (!activeTrack ? ' on' : '') + '" href="#/category/' + encodeURIComponent(title) + '">全部 <b>' + pad(list.length ? posts.filter(function (p) { return p.category === title; }).length : 0) + '</b></a>' +
+        tracks.map(function (t) {
+          return '<a class="chip' + (t.name === activeTrack ? ' on' : '') + '" href="#/category/' + encodeURIComponent(title) + '?track=' + encodeURIComponent(t.name) + '">' +
+            esc(t.name) + ' <b>' + pad(t.count) + '</b></a>';
+        }).join('') + '</div>';
+    }
+
     return '<div class="wrap">' +
       '<header class="page-head"><h1>' + esc(title) + '</h1><p>' + esc(desc) + '</p>' +
       '<p class="count">共 ' + list.length + ' 篇 · 约 ' + (list.reduce(function (n, p) { return n + p.chars; }, 0) / 1000).toFixed(1) + ' 千字</p>' +
-      '<div class="chips">' + chips + '</div></header>' +
+      '<div class="chips">' + chips + '</div>' + trackChips + '</header>' +
       (list.length
         ? '<div class="post-list">' + list.map(postRow).join('') + '</div>'
         : '<div class="empty">这个分类下还没有文章。</div>') +
@@ -863,8 +880,17 @@
       html = viewCategories(); navKey = 'categories'; title = '分类 · ' + SITE.name;
     } else if (segs[0] === 'category') {
       var cname = segs[1];
-      var list = posts.filter(function (x) { return x.category === cname; });
-      html = viewFiltered(cname, (CATS[cname] || {}).desc || '文章分类', list, cname);
+      var onlyTrack = r.query.get('track') || '';
+      var list = posts.filter(function (x) {
+        return x.category === cname && (!onlyTrack || x.track === onlyTrack);
+      });
+      html = viewFiltered(
+        onlyTrack || cname,
+        (CATS[cname] || {}).desc || '文章分类',
+        list, cname,
+        onlyTrack,
+        cname === '网络安全' ? trackList : null
+      );
       navKey = 'categories';
       title = cname + ' · ' + SITE.name;
     } else if (segs[0] === 'tags') {
