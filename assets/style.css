@@ -50,17 +50,17 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #141210;
-  --bg-2: #191613;
-  --surface: #1d1a16;
-  --surface-2: #241f1a;
-  --ink: #f2ece2;
-  --ink-2: #cbc1b3;
-  --muted: #948a7c;
-  --line: #302b24;
-  --line-2: #27221d;
-  --accent: #e0805c;
-  --accent-2: #f0a181;
+  --bg: #08070b;
+  --bg-2: #0d0b11;
+  --surface: #131017;
+  --surface-2: #1a1620;
+  --ink: #f6f2ea;
+  --ink-2: #cec5bc;
+  --muted: #948b9f;
+  --line: #2a2433;
+  --line-2: #201b28;
+  --accent: #e0b866;
+  --accent-2: #f2d79b;
   --accent-soft: #2b201a;
   --gold: #d9b061;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
@@ -1954,4 +1954,121 @@ a.tag:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accen
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+}
+
+/* =========================================================
+   排版改版：电影感顶部大图 + 深色编辑式排版
+   去掉了「整页照片 + 到处毛玻璃」，正文回到干净的暗底。
+   ========================================================= */
+
+/* 1. 页面底色：纯暗色 + 极淡的紫金辉光，不再铺照片 */
+body {
+  background: var(--bg);
+}
+body::before {
+  background:
+    radial-gradient(1100px 600px at 82% -8%, color-mix(in srgb, #7c3aed 16%, transparent), transparent 66%),
+    radial-gradient(900px 520px at 6% 4%, color-mix(in srgb, #e0b866 9%, transparent), transparent 64%);
+}
+
+/* 2. 首屏：全幅科比大图，左侧压暗放标题 */
+.hero {
+  max-width: none;
+  margin: 0 calc(50% - 50vw);
+  padding: 110px max(24px, calc(50vw - 560px)) 132px;
+  position: relative;
+  isolation: isolate;
+  background-image: url("bg-kobe.jpg");
+  background-size: cover;
+  background-position: center 32%;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid var(--line-2);
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(8,7,11,.96) 0%, rgba(8,7,11,.84) 38%, rgba(8,7,11,.36) 66%, rgba(8,7,11,.62) 100%);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 150px;
+  z-index: -1;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+}
+.hero-title, .hero-lede, .hero-stats { text-shadow: none; }
+.hero-title { color: #fbf7ef; letter-spacing: -.03em; }
+.hero-title em { color: var(--accent); }
+.hero-title em::after { display: none; }
+.hero-lede { color: color-mix(in srgb, #f4efe6 78%, transparent); }
+.hero-stats { border-top-color: color-mix(in srgb, #ffffff 16%, transparent); }
+.hero-stats b { color: #fbf7ef; }
+.hero-stats span { color: color-mix(in srgb, #f4efe6 62%, transparent); }
+
+/* 3. 去掉毛玻璃：列表条目回到「细线分隔 + 留白」 */
+.post-row {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--line-2);
+  padding: 30px 0;
+  margin-bottom: 0;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 30px;
+}
+.post-row:hover { background: none; }
+.post-row .cover { height: 112px; box-shadow: none; }
+
+/* 4. 文章页：标题与正文回到暗底，靠字号与行距建立层次 */
+.article-head,
+.prose {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+}
+.article-head { padding: 34px 0 10px; }
+.prose { padding: 0; margin-top: 26px; }
+
+/* 5. 目录与面包屑：细线 + 文字，不再加胶囊底 */
+.toc {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0 0 0 20px;
+}
+.crumbs {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+}
+
+/* 6. 标题字号拉开层次 */
+.article-title { letter-spacing: -.025em; }
+
+@media (max-width: 760px) {
+  .hero { padding: 64px 20px 84px; background-position: center 28%; }
+  .hero::before {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 72%, transparent), color-mix(in srgb, var(--bg) 94%, transparent));
+  }
+  .post-row { grid-template-columns: 120px minmax(0, 1fr); gap: 18px; padding: 22px 0; }
+  .post-row .cover { height: 84px; }
+}
+
+/* 首屏用 100vw 破格时避免出现横向滚动条 */
+html, body { overflow-x: hidden; }
+
+/* 品牌方块：暗底上用金色，和科比主题统一 */
+.brand-mark {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #120f16;
+  box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent);
 }

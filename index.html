@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,7 +18,12 @@
       var saved = localStorage.getItem('moonstars:theme');
       if (saved) { try { saved = JSON.parse(saved); } catch (e2) {} }
       if (saved !== 'dark' && saved !== 'light') saved = null;
-      var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      // 改版迁移：旧版存下的浅色偏好作废一次，保证第一眼就是新设计
+      if (!localStorage.getItem('moonstars:theme.mamba')) {
+        localStorage.setItem('moonstars:theme.mamba', '1');
+        saved = null;
+      }
+      var theme = saved || 'dark';   // 站点以深色为主视觉，仍可手动切换
       document.documentElement.setAttribute('data-theme', theme);
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', theme === 'dark' ? '#141210' : '#faf7f2');
