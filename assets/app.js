@@ -533,7 +533,7 @@
 
     return '<section class="path-card">' +
       '<div class="path-head"><h2>推荐学习顺序</h2>' +
-      '<p>顺着读一遍约 ' + total + ' 分钟。每篇都能单独看，顺序只是建议。</p></div>' +
+      '<p>一口气读完大概 ' + total + ' 分钟。顺序只是建议，哪篇都能单看。</p></div>' +
       '<div class="path-list">' + rows + '</div></section>';
   }
 
@@ -690,7 +690,7 @@
   /* ---------------- 视图：分类 / 标签 ---------------- */
   function viewCategories() {
     return '<div class="wrap">' +
-      '<header class="page-head"><h1>分类</h1><p>' + catList.length + ' 个主题，随笔六类，教程按方向分十一条线（C/C++、Python、AI、网络安全、二进制、逆向、CTF、内网、Windows 内核、固件与 IoT、样本分析）。每篇只归入一个分类。</p></header>' +
+      '<header class="page-head"><h1>分类</h1><p>' + catList.length + ' 个主题，随笔六类，教程按方向分了十一条线。想学哪块直接点进去，每篇只归一个类，不会到处重复。</p></header>' +
       '<div class="cat-grid">' + catList.map(function (c) {
         var list = posts.filter(function (p) { return p.category === c.name; });
         return '<a class="cat-card" href="#/category/' + encodeURIComponent(c.name) + '" style="--c1:' + c.c1 + ';--c2:' + c.c2 + '">' +
@@ -727,7 +727,7 @@
 
     return '<div class="wrap">' +
       '<header class="page-head"><h1>书架</h1>' +
-      '<p>十一条学习线：C/C++、Python、AI 打底，再往深处走是网络安全、二进制、逆向、CTF、内网、Windows 内核、固件与 IoT、样本分析。每本对应一篇可操作的实战笔记。</p>' +
+      '<p>十一条线，随便挑。想打基础就 C/C++ 和 Python，想搞 AI 就往上看，想往深处钻就去安全那片——二进制、逆向、CTF、内网、Windows 内核、固件、样本分析，都在这儿。每本配一篇能直接上手的笔记。</p>' +
       '<p class="count">' + bookPosts.length + ' 本 · ' + bookFields.length + ' 个领域 · 全部可运行</p>' +
       '<div class="chips">' + chips + '</div></header>' +
       (shown.length ? '<div class="book-grid">' + shown.map(bookCard).join('') + '</div>'
