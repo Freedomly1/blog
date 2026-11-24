@@ -6,9 +6,17 @@
     <description>一个前端工程师的公开笔记。写界面与工程，也写正在折腾的 AI 工作台——把爬虫、笔记、写稿收进同一条流水线。</description>
     <language>zh-CN</language>
     <copyright>© 2026 阿飞观察站</copyright>
-    <lastBuildDate>Mon, 23 Nov 2026 09:00:00 -0000</lastBuildDate>
+    <lastBuildDate>Tue, 24 Nov 2026 09:00:00 -0000</lastBuildDate>
     <atom:link href="https://freedomly1.github.io/blog/feed.xml" rel="self" type="application/rss+xml"/>
 
+    <item>
+      <title>安全入门：CIA 三元组、攻击面与学习路线</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-start</link>
+      <guid isPermaLink="false">afei-sec-start</guid>
+      <pubDate>Tue, 24 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>安全不是「会几个工具」，而是先建立一套判断框架：保护什么、对手是谁、边界在哪。这篇讲 CIA 三元组、威胁建模的四个问题、常见攻击分类，并给出一条从大一到就业的学习路线。</description>
+    </item>
     <item>
       <title>给机器人装上眼睛：一次从遥控到视觉闭环的复盘</title>
       <link>https://freedomly1.github.io/blog/#/post/robot-vision</link>
@@ -16,6 +24,22 @@
       <pubDate>Mon, 23 Nov 2026 09:00:00 -0000</pubDate>
       <category>前端工程</category>
       <description>一个人写的小车控制台最后长成了什么样：固件看门狗和 500ms 心跳的账、把转发地址填成自己后 4 秒 11932 次请求、以及为什么我把视觉放在浏览器里而不是服务端。</description>
+    </item>
+    <item>
+      <title>Web 安全基础：HTTP、同源策略与三类入门漏洞</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-web-basics</link>
+      <guid isPermaLink="false">afei-sec-web-basics</guid>
+      <pubDate>Mon, 23 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>Web 是最大的攻防战场。这篇先把 HTTP 与浏览器的安全机制讲清（Cookie、同源策略、CORS），再讲 SQL 注入、XSS、CSRF 三类入门漏洞的成因与修复，配可复现的靶场步骤。</description>
+    </item>
+    <item>
+      <title>密码学基础：对称、非对称、哈希与 TLS 握手</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-crypto</link>
+      <guid isPermaLink="false">afei-sec-crypto</guid>
+      <pubDate>Sun, 22 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>不用会证明安全性，但必须知道每种原语解决什么问题、什么时候会失效。这篇讲对称/非对称/哈希的分工、TLS 握手四步、以及五个真实世界里最常见的误用。</description>
     </item>
     <item>
       <title>从零开始：装好环境，跑通第一个 C 程序</title>
@@ -90,12 +114,36 @@
       <description>脚本能跑和代码能用是两件事。这篇讲 if/for/while 的边界写法、函数参数的五种形态，以及怎么把一堆脚本拆成模块与包，最后给出一个可导入可运行的目录结构。</description>
     </item>
     <item>
+      <title>信息收集与资产测绘：渗透测试的第一步</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-recon</link>
+      <guid isPermaLink="false">afei-sec-recon</guid>
+      <pubDate>Mon, 16 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>渗透测试 60% 的时间在信息收集。这篇讲被动与主动两类手段、子域与端口发现的思路、指纹识别的价值，以及如何把结果整理成一张可用的资产表。全程只做授权范围内的探测。</description>
+    </item>
+    <item>
       <title>类、异常与文件：写能维护的 Python 程序</title>
       <link>https://freedomly1.github.io/blog/#/post/py-oop</link>
       <guid isPermaLink="false">afei-py-oop</guid>
       <pubDate>Sun, 15 Nov 2026 09:00:00 -0000</pubDate>
       <category>编程教程</category>
       <description>类不是必须的，但它能把「数据 + 行为」绑在一起。这篇讲类的四个必备成员、异常的三种用法（捕获/抛出/自定义），以及文件与 JSON 读写的稳妥写法。</description>
+    </item>
+    <item>
+      <title>进阶 Web 漏洞：SSRF、XXE、反序列化与逻辑漏洞</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-web-adv</link>
+      <guid isPermaLink="false">afei-sec-web-adv</guid>
+      <pubDate>Sun, 15 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>入门漏洞靠过滤不严，进阶漏洞靠「功能设计被滥用」。这篇讲 SSRF、XXE、反序列化、文件上传、JWT 与业务逻辑六类问题的成因、判断信号与修复方式。</description>
+    </item>
+    <item>
+      <title>渗透测试流程：从授权到报告，一条完整链路</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-pentest</link>
+      <guid isPermaLink="false">afei-sec-pentest</guid>
+      <pubDate>Sat, 14 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>渗透测试是工程流程，不是「拿到 shell 就结束」。这篇按七阶段走一遍：授权与范围、侦察、漏洞验证、利用与提权、横向、清理、报告，并给出报告模板与常见踩坑。</description>
     </item>
     <item>
       <title>RAII 与智能指针：C++ 里没有 finally，也不需要</title>
@@ -106,12 +154,28 @@
       <description>为什么 C++ 不用写 finally 也不会漏释放资源？因为析构函数会在所有退出路径上自动执行。这篇讲清 RAII 的原理，以及 unique_ptr / shared_ptr 各自该在什么时候用。</description>
     </item>
     <item>
+      <title>蓝队与应急响应：从告警到溯源的完整闭环</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-defense</link>
+      <guid isPermaLink="false">afei-sec-defense</guid>
+      <pubDate>Fri, 13 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>红队找洞，蓝队治洞。这篇讲日志体系怎么建、告警怎么降噪、ATT&CK 怎么用、应急响应的六步流程，以及一次真实入侵的排查顺序（含 Linux 常用取证命令）。</description>
+    </item>
+    <item>
       <title>重新学会阅读：一年读完 40 本书之后</title>
       <link>https://freedomly1.github.io/blog/#/post/reading-40-books</link>
       <guid isPermaLink="false">afei-reading-40-books</guid>
       <pubDate>Thu, 12 Nov 2026 09:00:00 -0000</pubDate>
       <category>阅读笔记</category>
       <description>我把阅读从「必须读完」的 KPI，改成了一件随时可以放下的事。这是我这一年摸索出的四条规则，以及 6 本值得反复读的书。</description>
+    </item>
+    <item>
+      <title>代码审计与安全开发：把漏洞拦在上线之前</title>
+      <link>https://freedomly1.github.io/blog/#/post/sec-code-audit</link>
+      <guid isPermaLink="false">afei-sec-code-audit</guid>
+      <pubDate>Thu, 12 Nov 2026 09:00:00 -0000</pubDate>
+      <category>网络安全</category>
+      <description>最好的修复是「没写出来」。这篇讲审计的四条主线（输入、认证、文件、依赖）、危险函数清单、SAST/DAST 怎么配合，以及把安全检查嵌进 CI 的具体做法。</description>
     </item>
     <item>
       <title>从 .cpp 到可执行文件：undefined reference 到底在骂谁</title>
@@ -257,6 +321,7 @@
       <category>效率方法</category>
       <description>云端很方便，但「方便」不该以「失去控制权」为代价。这是我现在的工具组合，以及为此付出的代价。</description>
     </item>
+
 
 
 

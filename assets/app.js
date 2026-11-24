@@ -682,7 +682,7 @@
 
     return '<div class="wrap">' +
       '<header class="page-head"><h1>书架</h1>' +
-      '<p>三条学习线：C/C++ 打底、Python 上手、AI 用得明白。每本对应一篇可操作的实战笔记，代码都能直接跑。</p>' +
+      '<p>四条学习线：C/C++ 打底、Python 上手、AI 用得明白、安全守得住。每本对应一篇可操作的实战笔记，代码与命令都能直接跑。</p>' +
       '<p class="count">' + bookPosts.length + ' 本 · ' + bookFields.length + ' 个领域 · 全部可运行</p>' +
       '<div class="chips">' + chips + '</div></header>' +
       (shown.length ? '<div class="book-grid">' + shown.map(bookCard).join('') + '</div>'
