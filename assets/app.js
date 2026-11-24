@@ -645,7 +645,7 @@
   /* ---------------- 视图：分类 / 标签 ---------------- */
   function viewCategories() {
     return '<div class="wrap">' +
-      '<header class="page-head"><h1>分类</h1><p>' + catList.length + ' 个主题，覆盖前端工程、设计、效率、阅读、书摘和生活。每篇只归入一个分类。</p></header>' +
+      '<header class="page-head"><h1>分类</h1><p>' + catList.length + ' 个主题，随笔六类，教程按方向分八条线（C/C++、Python、AI、网络安全、二进制、逆向、CTF、内网）。每篇只归入一个分类。</p></header>' +
       '<div class="cat-grid">' + catList.map(function (c) {
         var list = posts.filter(function (p) { return p.category === c.name; });
         return '<a class="cat-card" href="#/category/' + encodeURIComponent(c.name) + '" style="--c1:' + c.c1 + ';--c2:' + c.c2 + '">' +
@@ -682,7 +682,7 @@
 
     return '<div class="wrap">' +
       '<header class="page-head"><h1>书架</h1>' +
-      '<p>四条学习线：C/C++ 打底、Python 上手、AI 用得明白、安全守得住。每本对应一篇可操作的实战笔记，代码与命令都能直接跑。</p>' +
+      '<p>八条学习线：C/C++ 打底、Python 上手、AI 用得明白、网络安全守得住，再往下是二进制、逆向、CTF 与内网。每本对应一篇可操作的实战笔记。</p>' +
       '<p class="count">' + bookPosts.length + ' 本 · ' + bookFields.length + ' 个领域 · 全部可运行</p>' +
       '<div class="chips">' + chips + '</div></header>' +
       (shown.length ? '<div class="book-grid">' + shown.map(bookCard).join('') + '</div>'
