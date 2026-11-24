@@ -295,7 +295,10 @@
 
   /* ---------------- 通用片段 ---------------- */
   function cover(p, extraClass) {
-    return '<div class="cover ' + (extraClass || '') + '" style="--c1:' + p.c1 + ';--c2:' + p.c2 + '">' +
+    // p.cover 有值时用图片封面，否则退回纯 CSS 渐变（老数据不受影响）
+    var cls = 'cover ' + (extraClass || '') + (p.cover ? ' has-img' : '');
+    var style = '--c1:' + p.c1 + ';--c2:' + p.c2 + (p.cover ? ';background-image:url(\'' + p.cover + '\')' : '');
+    return '<div class="' + cls + '" style="' + style + '">' +
       '<span class="cover-cat">' + esc(p.category) + '</span>' +
       '<span class="cover-orb" aria-hidden="true"></span>' +
       '<span class="cover-no">No.' + pad(p.no) + '</span>' +
