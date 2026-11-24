@@ -1893,3 +1893,45 @@ a.tag:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accen
   .prose a { color: #000; border: 0; }
 }
 
+/* =========================================================
+   壁纸背景适配（覆盖在原有规则之后，优先级最高）
+   照片做背景后，长段文字直接压在上面会难读，这里给
+   列表条目和文章正文加一层半透明毛玻璃底。
+   ========================================================= */
+
+.post-row {
+  padding: 20px 18px;
+  margin-bottom: 8px;
+  border-bottom: 0;
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(1.04);
+  backdrop-filter: blur(12px) saturate(1.04);
+}
+.post-row:hover {
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+}
+
+/* 文章页：正文与标题区同样加一层，保证长文阅读 */
+.article-head,
+.prose {
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(1.04);
+  backdrop-filter: blur(12px) saturate(1.04);
+  border-radius: var(--r-lg);
+}
+.article-head { padding: 26px 28px 22px; }
+.prose { padding: 26px 28px 30px; margin-top: 18px; }
+
+@media (max-width: 760px) {
+  .post-row { padding: 16px 14px; }
+  .article-head { padding: 20px 18px 18px; }
+  .prose { padding: 20px 18px 24px; }
+}
+
+/* 不支持 backdrop-filter 的浏览器：提高不透明度兜底 */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .post-row,
+  .article-head,
+  .prose { background: color-mix(in srgb, var(--surface) 94%, transparent); }
+}

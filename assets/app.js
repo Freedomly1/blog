@@ -50,6 +50,7 @@
       tags: p.tags || [],
       c1: p.c1,
       c2: p.c2,
+      cover: p.cover || '',
       featured: !!p.featured,
       book: p.book || null,
       markdown: md,

@@ -48,7 +48,8 @@ window.BLOG_POSTS = [
     category: '前端工程',
     tags: ['机器人', '机器视觉', 'Canvas', '工程复盘'],
     c1: '#14524f',
-    c2: '#63b8ab'
+    c2: '#63b8ab',
+    cover: 'assets/covers/cover-23-red.jpg',
   },
   {
     slug: 'reading-40-books',
@@ -59,6 +60,7 @@ window.BLOG_POSTS = [
     tags: ['阅读', '方法论', '复盘'],
     c1: '#5b4a8a',
     c2: '#c9a7eb',
+    cover: 'assets/covers/cover-night-court.jpg',
     featured: true
   },
   {
@@ -69,7 +71,8 @@ window.BLOG_POSTS = [
     category: '前端工程',
     tags: ['CSS', '响应式', '前端'],
     c1: '#0f5f5c',
-    c2: '#6fc3b4'
+    c2: '#6fc3b4',
+    cover: 'assets/covers/cover-23-red.jpg',
   },
   {
     slug: 'whitespace',
@@ -79,7 +82,8 @@ window.BLOG_POSTS = [
     category: '设计随笔',
     tags: ['设计', '排版', '视觉'],
     c1: '#b3541e',
-    c2: '#f0a868'
+    c2: '#f0a868',
+    cover: 'assets/covers/cover-33-green.jpg',
   },
   {
     slug: 'workflow-2026',
@@ -89,7 +93,8 @@ window.BLOG_POSTS = [
     category: '效率方法',
     tags: ['效率', '工具', '复盘'],
     c1: '#2f5d8a',
-    c2: '#8fc0e8'
+    c2: '#8fc0e8',
+    cover: 'assets/covers/cover-06-purple.jpg',
   },
   {
     slug: 'blog-as-second-brain',
@@ -99,7 +104,8 @@ window.BLOG_POSTS = [
     category: '效率方法',
     tags: ['写作', '知识管理'],
     c1: '#7a4b2a',
-    c2: '#d9a86c'
+    c2: '#d9a86c',
+    cover: 'assets/covers/cover-06-purple.jpg',
   },
   {
     slug: 'vite-build-optimization',
@@ -109,7 +115,8 @@ window.BLOG_POSTS = [
     category: '前端工程',
     tags: ['性能', '构建', 'Vite'],
     c1: '#1f5f45',
-    c2: '#86c9a8'
+    c2: '#86c9a8',
+    cover: 'assets/covers/cover-23-red.jpg',
   },
   {
     slug: 'five-afternoons',
@@ -119,7 +126,8 @@ window.BLOG_POSTS = [
     category: '生活切片',
     tags: ['生活', '城市'],
     c1: '#8a5a7a',
-    c2: '#e0aecb'
+    c2: '#e0aecb',
+    cover: 'assets/covers/cover-street-hoop.jpg',
   },
   {
     slug: 'deep-work',
@@ -129,7 +137,8 @@ window.BLOG_POSTS = [
     category: '阅读笔记',
     tags: ['阅读', '注意力', '书评'],
     c1: '#4a4a6a',
-    c2: '#a9a9c9'
+    c2: '#a9a9c9',
+    cover: 'assets/covers/cover-night-court.jpg',
   },
   {
     slug: 'letter-to-myself',
@@ -139,7 +148,8 @@ window.BLOG_POSTS = [
     category: '生活切片',
     tags: ['写作', '成长'],
     c1: '#9a5b2e',
-    c2: '#e8b98c'
+    c2: '#e8b98c',
+    cover: 'assets/covers/cover-street-hoop.jpg',
   },
   {
     slug: 'local-first',
@@ -149,7 +159,8 @@ window.BLOG_POSTS = [
     category: '效率方法',
     tags: ['数据', '工具', '隐私'],
     c1: '#37474f',
-    c2: '#90a4ae'
+    c2: '#90a4ae',
+    cover: 'assets/covers/cover-06-purple.jpg',
   },
   {
     slug: 'meditations',
@@ -160,6 +171,7 @@ window.BLOG_POSTS = [
     tags: ['哲学', '斯多葛', '经典'],
     c1: '#5a4b3a',
     c2: '#b9a184',
+    cover: 'assets/covers/cover-books.jpg',
     book: { title: '沉思录', author: '马可·奥勒留', year: '约 180 年', field: '哲学', rating: 5, note: '不劝你豁达，只提醒你哪些事根本不归你管。' }
   },
   {
@@ -171,6 +183,7 @@ window.BLOG_POSTS = [
     tags: ['文学', '小说', '余华'],
     c1: '#7a2f23',
     c2: '#c9735c',
+    cover: 'assets/covers/cover-23-red.jpg',
     book: { title: '活着', author: '余华', year: '1993', field: '文学', rating: 5, note: '克制到近乎冷酷，所以每一处疼都是真的。' }
   },
   {
@@ -182,6 +195,7 @@ window.BLOG_POSTS = [
     tags: ['社会', '中国', '经典'],
     c1: '#5c4a2e',
     c2: '#c2a878',
+    cover: 'assets/covers/cover-06-purple.jpg',
     book: { title: '乡土中国', author: '费孝通', year: '1947', field: '社会', rating: 5, note: '七万字解释了中国人为啥不好意思拒绝亲戚。' }
   },
   {
@@ -193,6 +207,7 @@ window.BLOG_POSTS = [
     tags: ['心理', '决策', '认知'],
     c1: '#3a4a5c',
     c2: '#8fa7bd',
+    cover: 'assets/covers/cover-33-green.jpg',
     book: { title: '思考，快与慢', author: '丹尼尔·卡尼曼', year: '2011', field: '心理', rating: 4, note: '读完你会不断在自己身上认出错觉。' }
   },
   {
@@ -204,6 +219,7 @@ window.BLOG_POSTS = [
     tags: ['文学', '加缪', '存在主义'],
     c1: '#4a4a4a',
     c2: '#a8a29a',
+    cover: 'assets/covers/cover-books.jpg',
     book: { title: '局外人', author: '阿尔贝·加缪', year: '1942', field: '文学', rating: 5, note: '他死于不肯表演，而不是那颗子弹。' }
   },
   {
@@ -215,6 +231,7 @@ window.BLOG_POSTS = [
     tags: ['社会', '历史', '人类学'],
     c1: '#6b3f2a',
     c2: '#d19a6a',
+    cover: 'assets/covers/cover-23-red.jpg',
     book: { title: '人类简史', author: '尤瓦尔·赫拉利', year: '2011', field: '社会', rating: 4, note: '把「理所当然」重新问一遍凭什么。' }
   },
   {
@@ -226,6 +243,7 @@ window.BLOG_POSTS = [
     tags: ['心理', '阿德勒', '关系'],
     c1: '#2f4f4a',
     c2: '#86b3a6',
+    cover: 'assets/covers/cover-06-purple.jpg',
     book: { title: '被讨厌的勇气', author: '岸见一郎 / 古贺史健', year: '2013', field: '心理', rating: 4, note: '不让你怪任何人，包括你的过去。' }
   },
   {
@@ -237,6 +255,7 @@ window.BLOG_POSTS = [
     tags: ['生活', '梭罗', '自然'],
     c1: '#24524a',
     c2: '#7bb0a3',
+    cover: 'assets/covers/cover-33-green.jpg',
     book: { title: '瓦尔登湖', author: '亨利·戴维·梭罗', year: '1854', field: '生活', rating: 5, note: '一本用账本写成的自由宣言。' }
   },
   {
@@ -248,6 +267,7 @@ window.BLOG_POSTS = [
     tags: ['科学', '进化', '生物学'],
     c1: '#35304f',
     c2: '#9a90c9',
+    cover: 'assets/covers/cover-books.jpg',
     book: { title: '自私的基因', author: '理查德·道金斯', year: '1976', field: '科学', rating: 4, note: '最冷的科学，写出了最热的结尾。' }
   },
   {
@@ -259,6 +279,7 @@ window.BLOG_POSTS = [
     tags: ['文学', '写作', '马尔克斯'],
     c1: '#7a5a1f',
     c2: '#d9b45c',
+    cover: 'assets/covers/cover-23-red.jpg',
     book: { title: '百年孤独', author: '加西亚·马尔克斯', year: '1967', field: '文学', rating: 5, note: '第一句就把时间折了三次，后面每一页都撑得住。' }
   },
   {
@@ -270,6 +291,7 @@ window.BLOG_POSTS = [
     tags: ['社会', '历史', '地理'],
     c1: '#4a3b2f',
     c2: '#9c8a76',
+    cover: 'assets/covers/cover-06-purple.jpg',
     book: { title: '枪炮、病菌与钢铁', author: '贾雷德·戴蒙德', year: '1997', field: '社会', rating: 4, note: '被误读得最厉害的一本「地理决定论」。' }
   },
   {
@@ -281,6 +303,7 @@ window.BLOG_POSTS = [
     tags: ['哲学', '柏拉图', '经典'],
     c1: '#3d4a6b',
     c2: '#93a7c9',
+    cover: 'assets/covers/cover-33-green.jpg',
     book: { title: '理想国', author: '柏拉图', year: '约公元前 375 年', field: '哲学', rating: 4, note: '两千四百年前的寓言，今天还在上演。' }
   }
 ];
