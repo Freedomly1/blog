@@ -513,6 +513,28 @@
     return out + '</nav>';
   }
 
+
+  /* 子方向推荐学习顺序 */
+  function pathCard(track) {
+    var path = (window.BLOG_PATHS || {})[track];
+    if (!path) return '';
+    var total = 0;
+    var rows = path.map(function (step, i) {
+      var item = bySlug[step.s];
+      if (!item) return '';
+      total += item.minutes;
+      return '<a class="path-step" href="' + postHref(item) + '">' +
+        '<i>' + pad(i + 1) + '</i>' +
+        '<span class="path-body"><b>' + esc(item.title) + '</b><em>' + esc(step.w) + '</em></span>' +
+        '<span class="path-min">' + item.minutes + ' 分钟</span></a>';
+    }).join('');
+
+    return '<section class="path-card">' +
+      '<div class="path-head"><h2>推荐学习顺序</h2>' +
+      '<p>顺着读一遍约 ' + total + ' 分钟。每篇都能单独看，顺序只是建议。</p></div>' +
+      '<div class="path-list">' + rows + '</div></section>';
+  }
+
   function viewFiltered(title, desc, list, activeCat, activeTrack, tracks) {
     var chips = '<a class="chip" href="#/posts">全部</a>' +
       catList.map(function (c) {
@@ -534,6 +556,7 @@
       '<header class="page-head"><h1>' + esc(title) + '</h1><p>' + esc(desc) + '</p>' +
       '<p class="count">共 ' + list.length + ' 篇 · 约 ' + (list.reduce(function (n, p) { return n + p.chars; }, 0) / 1000).toFixed(1) + ' 千字</p>' +
       '<div class="chips">' + chips + '</div>' + trackChips + '</header>' +
+      (activeTrack ? pathCard(activeTrack) : '') +
       (list.length
         ? '<div class="post-list">' + list.map(postRow).join('') + '</div>'
         : '<div class="empty">这个分类下还没有文章。</div>') +

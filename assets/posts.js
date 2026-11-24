@@ -31,6 +31,55 @@ window.BLOG_SITE = {
 /* 分类：名称 -> 描述与配色 */
 window.BLOG_TRACK_ORDER = ['安全基础', '二进制安全', '逆向分析', 'CTF 实战', '内网渗透', 'Windows 内核', '固件与 IoT', '样本分析'];
 
+window.BLOG_PATHS = {
+  '安全基础': [
+    { s: 'sec-start', w: '先建立判断框架：保护什么、对手是谁、边界在哪' },
+    { s: 'sec-web-basics', w: '再进具体漏洞：HTTP、同源策略与三类入门洞' },
+    { s: 'sec-crypto', w: '补协议层：哈希、AES 与 TLS 握手' },
+    { s: 'sec-recon', w: '动手第一步：把资产摸清楚' },
+    { s: 'sec-web-adv', w: '进阶漏洞：SSRF、反序列化与逻辑漏洞' },
+    { s: 'sec-pentest', w: '串成流程：授权、验证、报告' },
+    { s: 'sec-code-audit', w: '换到防守方：从代码里找问题' },
+    { s: 'sec-defense', w: '最后补蓝队：日志、应急与溯源' },
+  ],
+  '二进制安全': [
+    { s: 'bin-stack-overflow', w: '从栈帧与调用约定讲起，先看懂「为什么能覆盖返回地址」' },
+    { s: 'bin-ghidra', w: '学会静态看程序，后面分析题目更快' },
+    { s: 'bin-protections', w: '弄懂 NX/ASLR/Canary 各自拦什么，再谈绕过' },
+    { s: 'bin-rop', w: '最后用 gadget 拼链，把「只能执行已有代码」变成利用' },
+  ],
+  '逆向分析': [
+    { s: 'rev-pe-elf', w: '先看文件格式：程序从哪开始、代码在哪一段' },
+    { s: 'rev-packing', w: '再处理「看不懂」的情况：识别壳与脱壳' },
+    { s: 'rev-sandbox', w: '最后学动态分析：隔离环境里看它到底做什么' },
+  ],
+  'CTF 实战': [
+    { s: 'ctf-web-route', w: '建议先 Web：反馈快、门槛低，能最快建立做题手感' },
+    { s: 'ctf-pwn-route', w: '再上 Pwn：考汇编与内存，需要前面 C/C++ 地基' },
+    { s: 'ctf-crypto-route', w: 'Crypto 可按兴趣选，数学好的人上手更快' },
+  ],
+  '内网渗透': [
+    { s: 'intra-kerberos', w: '先懂认证：Kerberos 签发票据的每一步都是攻击面' },
+    { s: 'intra-recon', w: '再画地图：我在哪、周围有什么、谁能通向域控' },
+    { s: 'intra-lateral', w: '最后谈横向：凭据、通道、目标三要素与检测' },
+  ],
+  'Windows 内核': [
+    { s: 'win-kernel-basics', w: '先分清 Ring 3 / Ring 0，理解内核对象与 IRP' },
+    { s: 'win-driver-ioctl', w: '再进驱动：IOCTL 是绝大多数驱动漏洞的入口' },
+    { s: 'win-kernel-exploit', w: '最后谈利用：从任意写到 Token 替换' },
+  ],
+  '固件与 IoT': [
+    { s: 'iot-firmware', w: '先把固件拿到手并解开，这是一切的前提' },
+    { s: 'iot-vuln', w: '再挖漏洞：四类高发问题在固件里怎么定位' },
+    { s: 'iot-hardware', w: '拿不到固件就上硬件：UART / JTAG / SPI Flash' },
+  ],
+  '样本分析': [
+    { s: 'mal-family', w: '先学归因：怎么判断两个样本是一家' },
+    { s: 'mal-yara', w: '再把认知变成规则：写出能自动抓的 YARA' },
+    { s: 'mal-report', w: '最后做沉淀：报告、IOC 分级与情报闭环' },
+  ],
+};
+
 window.BLOG_CATEGORIES = {
   '前端工程': { desc: '布局、性能与工程化实践', c1: '#0f5f5c', c2: '#6fc3b4' },
   '设计随笔': { desc: '关于界面、字体与留白的观察', c1: '#b3541e', c2: '#f0a868' },
