@@ -50,17 +50,18 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #08070b;
-  --bg-2: #0d0b11;
-  --surface: #131017;
-  --surface-2: #1a1620;
-  --ink: #f6f2ea;
-  --ink-2: #cec5bc;
-  --muted: #948b9f;
-  --line: #2a2433;
-  --line-2: #201b28;
-  --accent: #e0b866;
-  --accent-2: #f2d79b;
+  /* 紫夜底 + 金色：不再用接近纯黑的底色 */
+  --bg: #17102a;
+  --bg-2: #1d1435;
+  --surface: #221838;
+  --surface-2: #2b1f47;
+  --ink: #f9f4ec;
+  --ink-2: #d7cce3;
+  --muted: #a294b8;
+  --line: #3c2d5e;
+  --line-2: #2f2449;
+  --accent: #f2c14e;
+  --accent-2: #b794f6;
   --accent-soft: #2b201a;
   --gold: #d9b061;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
@@ -1967,8 +1968,8 @@ body {
 }
 body::before {
   background:
-    radial-gradient(1100px 600px at 82% -8%, color-mix(in srgb, #7c3aed 16%, transparent), transparent 66%),
-    radial-gradient(900px 520px at 6% 4%, color-mix(in srgb, #e0b866 9%, transparent), transparent 64%);
+    radial-gradient(1200px 640px at 84% -10%, color-mix(in srgb, #8b5cf6 22%, transparent), transparent 68%),
+    radial-gradient(900px 520px at 2% 6%, color-mix(in srgb, #f2c14e 12%, transparent), transparent 66%);
 }
 
 /* 2. 首屏：全幅科比大图，左侧压暗放标题 */
@@ -2071,4 +2072,22 @@ html, body { overflow-x: hidden; }
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: #120f16;
   box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+/* 书籍封面换成球星图：隐藏点阵，上下压暗保证书名/作者可读 */
+.book-cover.has-img {
+  background-size: cover;
+  background-position: center 42%;
+  background-repeat: no-repeat;
+}
+.book-cover.has-img::after {
+  background: linear-gradient(180deg, rgba(10,6,18,.92) 0%, rgba(10,6,18,.34) 28%, rgba(10,6,18,.18) 50%, rgba(10,6,18,.94) 100%);
+  opacity: 1;
+}
+.book-cover.has-img .bc-title,
+.book-cover.has-img .bc-author,
+.book-cover.has-img .bc-fieldmark {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 12px rgba(0,0,0,.75);
 }

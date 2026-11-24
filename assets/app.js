@@ -51,6 +51,7 @@
       c1: p.c1,
       c2: p.c2,
       cover: p.cover || '',
+      bookCover: p.bookCover || '',
       featured: !!p.featured,
       book: p.book || null,
       markdown: md,
@@ -317,7 +318,7 @@
   function bookCard(p, i) {
     var b = p.book;
     return '<a class="book-card" href="' + postHref(p) + '" style="--delay:' + (i || 0) + '">' +
-      '<span class="book-cover" style="--c1:' + p.c1 + ';--c2:' + p.c2 + '">' +
+      '<span class="book-cover' + (p.bookCover ? ' has-img' : '') + '" style="--c1:' + p.c1 + ';--c2:' + p.c2 + (p.bookCover ? ';background-image:url(\'' + p.bookCover + '\')' : '') + '">' +
       '<span class="bc-spine"></span>' +
       '<span class="bc-title">' + esc(b.title) + '</span>' +
       '<span class="bc-author">' + esc(b.author) + '</span>' +

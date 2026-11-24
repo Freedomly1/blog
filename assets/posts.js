@@ -172,6 +172,7 @@ window.BLOG_POSTS = [
     c1: '#5a4b3a',
     c2: '#b9a184',
     cover: 'assets/covers/cover-books.jpg',
+    bookCover: 'assets/covers/book-8-purple.jpg',
     book: { title: '沉思录', author: '马可·奥勒留', year: '约 180 年', field: '哲学', rating: 5, note: '不劝你豁达，只提醒你哪些事根本不归你管。' }
   },
   {
@@ -184,6 +185,7 @@ window.BLOG_POSTS = [
     c1: '#7a2f23',
     c2: '#c9735c',
     cover: 'assets/covers/cover-23-red.jpg',
+    bookCover: 'assets/covers/book-32-gold.jpg',
     book: { title: '活着', author: '余华', year: '1993', field: '文学', rating: 5, note: '克制到近乎冷酷，所以每一处疼都是真的。' }
   },
   {
@@ -196,6 +198,7 @@ window.BLOG_POSTS = [
     c1: '#5c4a2e',
     c2: '#c2a878',
     cover: 'assets/covers/cover-06-purple.jpg',
+    bookCover: 'assets/covers/book-21-silver.jpg',
     book: { title: '乡土中国', author: '费孝通', year: '1947', field: '社会', rating: 5, note: '七万字解释了中国人为啥不好意思拒绝亲戚。' }
   },
   {
@@ -208,6 +211,7 @@ window.BLOG_POSTS = [
     c1: '#3a4a5c',
     c2: '#8fa7bd',
     cover: 'assets/covers/cover-33-green.jpg',
+    bookCover: 'assets/covers/book-34-power.jpg',
     book: { title: '思考，快与慢', author: '丹尼尔·卡尼曼', year: '2011', field: '心理', rating: 4, note: '读完你会不断在自己身上认出错觉。' }
   },
   {
@@ -220,6 +224,7 @@ window.BLOG_POSTS = [
     c1: '#4a4a4a',
     c2: '#a8a29a',
     cover: 'assets/covers/cover-books.jpg',
+    bookCover: 'assets/covers/book-3-blue.jpg',
     book: { title: '局外人', author: '阿尔贝·加缪', year: '1942', field: '文学', rating: 5, note: '他死于不肯表演，而不是那颗子弹。' }
   },
   {
@@ -232,6 +237,7 @@ window.BLOG_POSTS = [
     c1: '#6b3f2a',
     c2: '#d19a6a',
     cover: 'assets/covers/cover-23-red.jpg',
+    bookCover: 'assets/covers/book-41-navy.jpg',
     book: { title: '人类简史', author: '尤瓦尔·赫拉利', year: '2011', field: '社会', rating: 4, note: '把「理所当然」重新问一遍凭什么。' }
   },
   {
@@ -244,6 +250,7 @@ window.BLOG_POSTS = [
     c1: '#2f4f4a',
     c2: '#86b3a6',
     cover: 'assets/covers/cover-06-purple.jpg',
+    bookCover: 'assets/covers/book-8-purple.jpg',
     book: { title: '被讨厌的勇气', author: '岸见一郎 / 古贺史健', year: '2013', field: '心理', rating: 4, note: '不让你怪任何人，包括你的过去。' }
   },
   {
@@ -256,6 +263,7 @@ window.BLOG_POSTS = [
     c1: '#24524a',
     c2: '#7bb0a3',
     cover: 'assets/covers/cover-33-green.jpg',
+    bookCover: 'assets/covers/book-32-gold.jpg',
     book: { title: '瓦尔登湖', author: '亨利·戴维·梭罗', year: '1854', field: '生活', rating: 5, note: '一本用账本写成的自由宣言。' }
   },
   {
@@ -268,6 +276,7 @@ window.BLOG_POSTS = [
     c1: '#35304f',
     c2: '#9a90c9',
     cover: 'assets/covers/cover-books.jpg',
+    bookCover: 'assets/covers/book-21-silver.jpg',
     book: { title: '自私的基因', author: '理查德·道金斯', year: '1976', field: '科学', rating: 4, note: '最冷的科学，写出了最热的结尾。' }
   },
   {
@@ -280,6 +289,7 @@ window.BLOG_POSTS = [
     c1: '#7a5a1f',
     c2: '#d9b45c',
     cover: 'assets/covers/cover-23-red.jpg',
+    bookCover: 'assets/covers/book-34-power.jpg',
     book: { title: '百年孤独', author: '加西亚·马尔克斯', year: '1967', field: '文学', rating: 5, note: '第一句就把时间折了三次，后面每一页都撑得住。' }
   },
   {
@@ -292,6 +302,7 @@ window.BLOG_POSTS = [
     c1: '#4a3b2f',
     c2: '#9c8a76',
     cover: 'assets/covers/cover-06-purple.jpg',
+    bookCover: 'assets/covers/book-3-blue.jpg',
     book: { title: '枪炮、病菌与钢铁', author: '贾雷德·戴蒙德', year: '1997', field: '社会', rating: 4, note: '被误读得最厉害的一本「地理决定论」。' }
   },
   {
@@ -304,6 +315,7 @@ window.BLOG_POSTS = [
     c1: '#3d4a6b',
     c2: '#93a7c9',
     cover: 'assets/covers/cover-33-green.jpg',
+    bookCover: 'assets/covers/book-41-navy.jpg',
     book: { title: '理想国', author: '柏拉图', year: '约公元前 375 年', field: '哲学', rating: 4, note: '两千四百年前的寓言，今天还在上演。' }
   }
 ];
