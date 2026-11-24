@@ -525,7 +525,9 @@
       total += item.minutes;
       return '<a class="path-step" href="' + postHref(item) + '">' +
         '<i>' + pad(i + 1) + '</i>' +
-        '<span class="path-body"><b>' + esc(item.title) + '</b><em>' + esc(step.w) + '</em></span>' +
+        '<span class="path-body"><b>' + esc(item.title) + '</b><em>' + esc(step.w) + '</em>' +
+        (step.do ? '<span class="path-do">练：' + esc(step.do) + '</span>' : '') +
+        '</span>' +
         '<span class="path-min">' + item.minutes + ' 分钟</span></a>';
     }).join('');
 
@@ -556,7 +558,10 @@
       '<header class="page-head"><h1>' + esc(title) + '</h1><p>' + esc(desc) + '</p>' +
       '<p class="count">共 ' + list.length + ' 篇 · 约 ' + (list.reduce(function (n, p) { return n + p.chars; }, 0) / 1000).toFixed(1) + ' 千字</p>' +
       '<div class="chips">' + chips + '</div>' + trackChips + '</header>' +
-      (activeTrack ? pathCard(activeTrack) : '') +
+      (function () {
+        var key = activeTrack || ((window.BLOG_PATHS || {})[title] ? title : '');
+        return key ? pathCard(key) : '';
+      })() +
       (list.length
         ? '<div class="post-list">' + list.map(postRow).join('') + '</div>'
         : '<div class="empty">这个分类下还没有文章。</div>') +

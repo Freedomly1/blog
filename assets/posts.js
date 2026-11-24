@@ -78,6 +78,32 @@ window.BLOG_PATHS = {
     { s: 'mal-yara', w: '再把认知变成规则：写出能自动抓的 YARA' },
     { s: 'mal-report', w: '最后做沉淀：报告、IOC 分级与情报闭环' },
   ],
+  'C/C++': [
+    { s: 'cpp-start', w: '先把编译链跑通：装好 gcc、会写 hello.c、能看懂报错的三段结构', do: '用 -Wall -Wextra 把警告改到零，再故意删一个分号看报错指向哪行' },
+    { s: 'cpp-types', w: '理解类型的两件事：占多大内存、这串二进制怎么解释', do: '打出各整型的 sizeof 与最大最小值，跑一次 int 溢出看结果' },
+    { s: 'cpp-flow', w: '把 if/for/while 的边界写对，函数接口先想清楚再动手', do: '写猜数字游戏，并给每个函数加 const 与参数长度' },
+    { s: 'cpp-memory', w: '看懂栈/堆/静态区的分工，知道 free 之后指针为什么还危险', do: '手写 IntVec（append + 扩容），用 ASan 跑一遍确认无泄漏' },
+    { s: 'cpp-pointers-arrays', w: '分清数组与指针：sizeof 与 & 的差别、退化发生在什么时候', do: '用 std::span 写一个能同时接收数组和 vector 的函数' },
+    { s: 'cpp-build', w: '搞懂四个编译阶段，能自己定位 undefined reference / multiple definition', do: '用 nm 看符号表，故意制造两种链接错误再逐个修掉' },
+    { s: 'cpp-raii', w: '掌握所有权语义：为什么 C++ 不需要 finally，unique/shared 怎么选', do: '把一段裸 new/delete 改成 unique_ptr，再用 shared_ptr + weak_ptr 解一次循环引用' },
+    { s: 'cpp-stl', w: '用 vector/map/算法替代手写容器，理解模板为什么写在头文件里', do: '写去重 + 词频统计，再写一个模板 print_all 验证泛型' },
+  ],
+  'Python': [
+    { s: 'py-start', w: '装好解释器与虚拟环境，会跑脚本、会读 Traceback', do: '建一个 venv，装 requests，写三行代码请求网页打印状态码' },
+    { s: 'py-types', w: '掌握 str/list/tuple/dict/set 的适用场景与不可变陷阱', do: '统计文本词频取 Top10，并用 set 求两个列表的交集与差集' },
+    { s: 'py-flow-module', w: '写出边界正确的控制流，掌握五种函数参数形态与模块拆分', do: '把词频脚本拆成 utils/text.py + main.py，函数可导入可运行' },
+    { s: 'py-oop', w: '用类收敛参数，用异常表达失败，用 with 管理资源', do: '用 dataclass 重写 Article，写 load_articles 处理文件缺失与坏 JSON' },
+    { s: 'py-containers', w: '理解 list 是动态数组、dict 是哈希表，据此选容器', do: '把项目里所有 `x in [...]`、`list.pop(0)`、字符串 += 换掉并用 timeit 量化' },
+    { s: 'py-generators', w: '理解 yield 暂停的是栈帧，会用生成器搭管道', do: '写 tail(path, n) 生成器，统计大日志里 Top10 URL' },
+    { s: 'py-decorators', w: '搞懂闭包与三层嵌套，会写带参装饰器与异步装饰器', do: '实现 @memoize 支持自定义 key，并处理不可哈希参数' },
+    { s: 'py-gil', w: '分清 CPU 密集与 IO 密集，按任务类型选线程/进程/异步', do: '同一任务用串行、线程池、asyncio 各实现一次，记录耗时差异' },
+  ],
+  'AI': [
+    { s: 'ai-prompt', w: '学会用五段式结构写提示词：角色、输入、约束、格式、边界', do: '把一个模糊提示改写成五段式，输出 JSON，并在 10 条真实输入上验证结构合规率' },
+    { s: 'ai-workflow', w: '把 AI 嵌进日常流程：读代码、写文档、做复盘，且每个产出都有验收动作', do: '挑一件每周做三次的重复劳动，写出「输入—任务—约束—验收」四段并跑一周' },
+    { s: 'ai-rag', w: '理解 RAG 的质量取决于检索：切块带语境、混合召回、重排、强制引用', do: '拿一份 50 页 PDF，做结构切块 + 混合检索，用 20 个问题对比前 5 命中率' },
+    { s: 'ai-agent', w: '掌握 Agent 循环：工具、观察、终止条件，以及五条防跑飞规则', do: '用 80 行最小实现做一个「查日志→定位代码」的 Agent，步数上限 8 并落盘 JSONL' },
+  ],
 };
 
 window.BLOG_CATEGORIES = {

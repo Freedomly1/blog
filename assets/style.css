@@ -2347,3 +2347,15 @@ html, body { overflow-x: hidden; }
   .path-step { grid-template-columns: 26px minmax(0, 1fr); }
   .path-min { display: none; }
 }
+
+/* 路径里「练什么」一行 */
+.path-do {
+  font-size: 12px;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--accent) 80%, var(--muted));
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  padding: 4px 8px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 2px;
+}
