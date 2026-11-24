@@ -5885,6 +5885,1001 @@ ssh -L 8080:10.0.2.5:80 user@jump
 </script>
 
 
+<script type="text/markdown" id="md-win-kernel-basics">
+Windows 的安全边界只有一条：**用户态与内核态**。跨过这条线，程序的权力从「受约束」变成「无约束」。
+
+## 一、两种特权级
+
+| 层级 | 运行什么 | 权限 |
+| --- | --- | --- |
+| Ring 3（用户态） | 普通进程 | 只能访问自己的地址空间，不能直接碰硬件 |
+| Ring 0（内核态） | 内核、驱动 | 可访问任意内存、端口、CR 寄存器 |
+
+用户态想做事，必须通过 **系统调用**（`ntdll.dll` 里的 `Nt*` 函数）进入内核。这个过程会做参数校验——**校验就在这一步**。
+
+## 二、内核里有什么
+
+```
+ntoskrnl.exe（内核本体）
+ ├─ 对象管理器：File / Process / Thread / Mutex 都是对象
+ ├─ 内存管理器：页表、Pool（NonPagedPool / PagedPool）
+ ├─ I/O 管理器：把请求转成 IRP 发给驱动
+ ├─ 进程/线程调度
+ └─ 安全引用监视器：访问检查（Token、ACL）
+```
+
+**对象管理器**是理解内核漏洞的钥匙：内核里的资源几乎都是「对象」，拿一个指针就能操作它，而对象没有用户态那样的句柄校验。
+
+## 三、驱动是怎么被加载的
+
+1. 服务管理器读取注册表 `HKLM\SYSTEM\CurrentControlSet\Services\<名字>`
+2. 按 `ImagePath` 加载 `.sys` 文件
+3. 调用驱动的 `DriverEntry`（相当于用户态的 main）
+4. 驱动通过 `IoCreateDevice` 创建设备对象、`IoCreateSymbolicLink` 暴露给用户态
+
+用户态 `CreateFile("\\.\MyDevice")` 打开设备，之后用 `DeviceIoControl` 发控制码——**这就是用户态进入内核最常用的入口**。
+
+## 四、IRP：内核里的「请求对象」
+
+用户态的每次 I/O 请求，都会变成一个 IRP（I/O Request Packet）发给驱动：
+
+```
+用户态 DeviceIoControl
+   → I/O 管理器创建 IRP_MJ_DEVICE_CONTROL
+   → 驱动 DispatchDeviceControl(DeviceObject, Irp)
+   → 驱动处理，调用 IoCompleteRequest 完成
+```
+
+驱动的分发函数里通常会这样取参数：
+
+```c
+PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(Irp);
+ULONG code = stack->Parameters.DeviceIoControl.IoControlCode;
+PVOID buf  = Irp->AssociatedIrp.SystemBuffer;
+ULONG len  = stack->Parameters.DeviceIoControl.InputBufferLength;
+```
+
+**这里少一次长度校验，就是内核任意读写**。
+
+## 五、为什么内核漏洞 = 提权
+
+用户态进程的权限由 **Token** 决定（`EPROCESS->Token`）。内核代码可以：
+
+```c
+// 伪代码：把当前进程 token 换成 System 的
+PEPROCESS cur = PsGetCurrentProcess();
+PEPROCESS sys = PsInitialSystemProcess;
+cur->Token = sys->Token;
+```
+
+一旦能内核任意写，就能改 Token、改 `EPROCESS` 的保护位、关掉安全回调——**从普通用户直接变成 SYSTEM**。
+
+## 六、漏洞类型速览
+
+| 类型 | 成因 | 典型后果 |
+| --- | --- | --- |
+| 任意写 | IOCTL 未校验地址 | 改 Token 提权 |
+| 池溢出 | 拷贝长度未校验 | 覆盖相邻对象 |
+| UAF | 对象释放后仍可引用 | 类型混淆、任意调用 |
+| 空指针解引用 | 未判空 | 蓝屏（DoS） |
+| 符号链接滥用 | 设备名可控 | 任意文件写 |
+
+## 七、防线：为什么现代 Windows 难打了
+
+- **驱动签名强制**：未签名驱动加载不了（测试模式除外）
+- **HVCI / VBS**：用虚拟化保护内核代码完整性
+- **KCFG / CFG**：间接调用目标校验
+- **SMEP / SMAP**：内核不能执行/访问用户态内存
+- **PatchGuard**：防止修改内核关键结构
+
+## 八、学习路径建议
+
+```
+1. 先读 Windows Internals 前四章（对象、IRP、内存）
+2. 写一个最小的 Hello 驱动（KMDF），能加载、能打印
+3. 加一个 IOCTL，实现「内核读用户缓冲区」
+4. 在虚拟机里故意去掉长度校验，观察如何被利用
+5. 再看公开 CVE 的分析文章（如驱动 IOCTL 提权）
+```
+
+**必须在虚拟机里做**，内核错误直接蓝屏，且可能损坏系统。
+
+## 九、练习
+
+1. 用 WinDbg 附加虚拟机内核，`!process 0 0` 列出所有进程，找到 System 进程的 EPROCESS
+2. 写一个只做加法的 IOCTL 驱动，用 `DeviceIoControl` 调用成功
+3. 用 `!object \Device` 查看设备对象树
+
+## 一句话总结
+
+内核漏洞的本质是**「用户态能控制的输入，进入了没有校验的内核路径」**。看懂 IRP 与 IOCTL，就找到了绝大多数驱动漏洞的入口。
+</script>
+
+
+<script type="text/markdown" id="md-win-driver-ioctl">
+驱动的攻击面几乎全在 **IRP_MJ_DEVICE_CONTROL** 上。理解它，等于理解了驱动漏洞的通用模型。
+
+## 一、三种缓冲方式
+
+创建控制码时用 `METHOD_*` 指定：
+
+| 方式 | 内核拿到的指针 | 特点 |
+| --- | --- | --- |
+| `METHOD_BUFFERED` | `Irp->AssociatedIrp.SystemBuffer` | 系统复制一份，最安全 |
+| `METHOD_IN_DIRECT` / `OUT_DIRECT` | `MmGetSystemAddressForMdlSafe` | 用 MDL 映射用户页，零拷贝 |
+| `METHOD_NEITHER` | 直接用 `Parameters.DeviceIoControl.Type3InputBuffer` | **完全信任用户指针，最危险** |
+
+`METHOD_NEITHER` 是漏洞高发区，因为它把用户态地址直接交给内核——内核若不校验，就能被当成任意地址读写。
+
+## 二、控制码怎么算
+
+```c
+#define IOCTL_READ_MEM \
+    CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_NEITHER, FILE_ANY_ACCESS)
+```
+
+`CTL_CODE` 把「设备类型 / 功能号 / 缓冲方式 / 访问权限」打包成 32 位整数。用户态用同一个宏算出相同值发送。
+
+## 三、四类最常见的校验缺失
+
+**1. 不校验用户指针**
+
+```c
+// 错误：直接把用户地址当内核地址用
+PVOID addr = stack->Parameters.DeviceIoControl.Type3InputBuffer;
+ProbeForRead(addr, size, 1);          // 缺少这一步
+RtlCopyMemory(kbuf, addr, size);
+```
+
+正确做法：
+
+```c
+__try {
+    ProbeForRead(addr, size, 1);       // 校验地址在用户空间且可读
+    RtlCopyMemory(kbuf, addr, size);
+} __except (EXCEPTION_EXECUTE_HANDLER) {
+    return STATUS_ACCESS_VIOLATION;
+}
+```
+
+**2. 不校验长度**
+
+```c
+// 错误：相信用户给的长度
+ULONG len = stack->Parameters.DeviceIoControl.InputBufferLength;
+RtlCopyMemory(dst, src, len);          // dst 只有 0x100，len 可能是 0x10000
+```
+
+正确：`if (len > sizeof(dst)) return STATUS_BUFFER_TOO_SMALL;`
+
+**3. 不校验句柄/对象类型**
+
+```c
+// 错误：拿到指针就用
+PEPROCESS proc = (PEPROCESS)user_supplied;
+KeStackAttachProcess(proc, &state);    // 攻击者传任意值 → 任意地址写
+```
+
+正确：用 `ObReferenceObjectByHandle` 从句柄取对象，并校验类型。
+
+**4. TOCTOU（检查后使用）**
+
+```c
+if (user_struct->flag == 1) {          // 检查
+    do_something(user_struct);          // 使用：攻击者在这期间改了内存
+}
+```
+
+正确：**先把数据复制到内核缓冲，再判断**。
+
+## 四、一个最小但完整的处理函数
+
+```c
+NTSTATUS DispatchIoctl(PDEVICE_OBJECT dev, PIRP Irp) {
+    PIO_STACK_LOCATION sp = IoGetCurrentIrpStackLocation(Irp);
+    ULONG code = sp->Parameters.DeviceIoControl.IoControlCode;
+    ULONG inlen = sp->Parameters.DeviceIoControl.InputBufferLength;
+    PVOID inbuf = Irp->AssociatedIrp.SystemBuffer;   // Buffered 方式
+    NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;
+
+    switch (code) {
+    case IOCTL_ADD:
+        if (inlen < sizeof(MY_INPUT)) { status = STATUS_BUFFER_TOO_SMALL; break; }
+        MY_INPUT *in = (MY_INPUT *)inbuf;
+        Irp->IoStatus.Information = in->a + in->b;   // 只用校验过的数据
+        status = STATUS_SUCCESS;
+        break;
+    }
+    Irp->IoStatus.Status = status;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    return status;
+}
+```
+
+四个要点：**校验长度、只用 SystemBuffer、不信任任何用户字段、明确 IoStatus.Information**。
+
+## 五、攻击者怎么找这类驱动
+
+1. 枚举 `\Device\` 下的设备，看哪些允许普通用户打开
+2. 用 `DeviceIoControl` 暴力发控制码（0x800–0x8FF 常见）
+3. 观察是否蓝屏（说明控制码存在且处理有 bug）
+4. 结合 `IOCTL` 的输入输出推断语义
+
+防守方要做的：**限制设备 ACL**（`IoCreateDeviceSecure`），让普通用户根本打不开。
+
+## 六、检测与加固
+
+| 措施 | 作用 |
+| --- | --- |
+| `IoCreateDeviceSecure` + SDDL | 只允许管理员访问设备 |
+| 全面使用 `METHOD_BUFFERED` | 由系统代管拷贝 |
+| `ProbeForRead/Write` + `__try` | 防用户地址异常 |
+| 静态分析 | 用 CodeQL/驱动专项规则扫未校验路径 |
+| HVCI | 拦截内核代码页篡改 |
+
+## 七、练习
+
+1. 写一个 `METHOD_BUFFERED` 的驱动，实现「传入两个整数返回和」
+2. 故意去掉长度校验，用超长输入观察蓝屏（虚拟机）
+3. 用 `WinObj` 查看你创建的设备对象 ACL，确认普通用户能否打开
+
+## 一句话总结
+
+驱动漏洞的通用模型是**「用户可控的指针或长度，进入了没有检查的内核路径」**。把长度校验、指针探测、对象引用三件事做全，八成漏洞就没了。
+</script>
+
+
+<script type="text/markdown" id="md-win-kernel-exploit">
+内核漏洞利用（LPE）的目标很具体：**从普通用户变成 SYSTEM**。路径通常只有两三条。
+
+## 一、利用链的三阶段
+
+```
+① 触发：构造输入让漏洞稳定复现（不蓝屏、不重启）
+② 定位：找到要改的内核对象及其地址
+③ 修改：改 Token / 改 PreviousMode / 关回调
+```
+
+难点在 ①：内核崩溃就是 BSOD，没有「重试」的机会。所以**稳定性 > 成功率**。
+
+## 二、路径一：Token 替换
+
+每个进程的 `EPROCESS` 里有 `Token` 字段（指向 `_TOKEN`）。把当前进程的 Token 换成 System 进程的：
+
+```c
+// 伪代码
+PEPROCESS me  = PsGetCurrentProcess();
+PEPROCESS sys = PsInitialSystemProcess;     // 全局变量，导出符号
+*(PVOID *)((PUCHAR)me + TOKEN_OFFSET) = *(PVOID *)((PUCHAR)sys + TOKEN_OFFSET);
+```
+
+`TOKEN_OFFSET` 随 Windows 版本变化，需要按版本查（WinDbg 的 `dt _EPROCESS Token` 可查当前系统）。
+
+**优点**：稳定、影响小。**缺点**：需要知道两个地址（当前进程、System 进程）。
+
+## 三、路径二：PreviousMode 置 0
+
+内核在处理来自用户态的请求时，`KTHREAD->PreviousMode` 为 1（UserMode）；内核自己调用时为 0。
+
+把它改成 0，再调用本应受限的内核 API，就绕过了参数校验：
+
+```c
+// 效果示意：置 0 后 NtReadVirtualMemory 会认为调用方是内核
+*(UCHAR *)((PUCHAR)KeGetCurrentThread() + PREVIOUS_MODE_OFFSET) = 0;
+```
+
+**优点**：不用找 System 进程。**缺点**：改的是线程状态，作用范围有限，且很快被重置。
+
+## 四、路径三：改回调与保护位
+
+| 目标 | 效果 |
+| --- | --- |
+| `PsSetCreateProcessNotifyRoutine` 相关回调 | 关掉进程创建监控（持久化用） |
+| `EPROCESS->Protection` | 把进程标成 PPL，反而更难被结束 |
+| SSDT 表项 | 劫持系统调用（老系统） |
+
+现代系统对这类结构有 **PatchGuard**（内核补丁保护）定期校验，改了会蓝屏——所以这条路在前沿利用中基本被弃用。
+
+## 五、任意读写怎么来
+
+| 漏洞类型 | 转成任意读写的常见手法 |
+| --- | --- |
+| 池溢出 | 覆盖相邻对象的 `ObjectType` / 函数指针 |
+| UAF | 重新占用同一块池内存，类型混淆 |
+| 任意写（IOCTL 直接给地址） | 直接写目标字段 |
+| 逻辑漏洞 | 用合法 API 达成任意读写（如驱动封装了 `MmMapIoSpace`） |
+
+**最省事的是「驱动本身就提供了任意读写」**：很多厂商驱动为了「调试方便」暴露了 `MapPhysicalMemory` 之类功能，直接就是提权原语。
+
+## 六、为什么现代 Windows 越来越难
+
+| 缓解 | 拦住了什么 |
+| --- | --- |
+| HVCI / VBS | 内核代码页不可写，改代码失效 |
+| KCFG / CFG | 间接调用只能跳到合法目标 |
+| SMEP / SMAP | 内核不能执行/读用户内存，ret2usr 失效 |
+| PatchGuard | 改关键结构会蓝屏 |
+| 驱动签名 + 黑名单 | 易受攻击的驱动被拉黑 |
+| Token 结构加固 | 部分字段受保护，不能直接替换 |
+
+这些机制把「一次任意写 → 提权」变成了「需要多个原语配合」。
+
+## 七、防守方更该关注的事
+
+1. **减少攻击面**：卸载/拉黑有漏洞的第三方驱动（这是最常见的内核提权来源）
+2. **开启 HVCI**：即使有漏洞，也很难改内核代码
+3. **监控驱动加载**：事件 7045 + 驱动签名校验
+4. **关注 BYOVD**（自带易受攻击驱动）：攻击者带一个旧驱动进来打内核
+
+## 八、法律与边界
+
+内核漏洞研究只在**自己完全控制的虚拟机**里做。对真实设备做未授权测试，风险与后果都远超 Web 渗透（可能造成设备损坏与系统不可用）。
+
+## 九、练习
+
+1. 在虚拟机用 WinDbg 执行 `dt _EPROCESS Token`，记录你的系统版本偏移
+2. 用 HEVD（HackSys Extreme Vulnerable Driver）练一个「任意写 → Token 替换」的完整链
+3. 开启 HVCI 后重试，观察哪一步失效
+
+## 一句话总结
+
+内核利用就是**把「一个可控的写」变成「一个可控的权限」**。路径有限（Token / PreviousMode / 回调），难点永远是稳定性与缓解对抗。
+</script>
+
+
+<script type="text/markdown" id="md-iot-firmware">
+IoT 设备的攻击面几乎全在固件里：**Web 服务、硬编码口令、启动脚本、升级校验**。拿到固件，就拿到了它的全部秘密。
+
+## 一、三条获取路径
+
+| 路径 | 难度 | 说明 |
+| --- | --- | --- |
+| 官网下载 | 最低 | 很多厂商提供固件下载（升级包） |
+| OTA 抓包 | 中 | 设备升级时抓 HTTP/TFTP 请求，拿到 `.bin` |
+| 硬件读取 | 高 | 拆机用 CH341A 夹 SPI Flash，直接 dump |
+
+**先试官网，再试抓包，最后拆机**——顺序反了会浪费大量时间。
+
+## 二、先看文件是什么
+
+```bash
+file firmware.bin            # 常见输出：data（正常，说明是裸镜像）
+binwalk firmware.bin         # 扫描内部结构
+strings -n 8 firmware.bin | head -50
+```
+
+`binwalk` 的典型输出：
+
+```
+DECIMAL   HEXADECIMAL   DESCRIPTION
+0         0x0           uImage header, kernel 3.10.14
+131072    0x20000       Squashfs filesystem, little endian, version 4.0
+```
+
+一条 `Squashfs` 就说明「文件系统在后面」，可以直接解。
+
+## 三、解包
+
+```bash
+binwalk -e firmware.bin           # 自动提取（需要 unsquashfs 等依赖）
+# 或手工
+dd if=firmware.bin bs=1 skip=131072 of=fs.squashfs
+unsquashfs fs.squashfs
+```
+
+常见文件系统与工具：
+
+| 类型 | 提取方式 |
+| --- | --- |
+| SquashFS | `unsquashfs`（`-comp xz` 指定压缩） |
+| JFFS2 | `jefferson` 或 `modprobe mtdram` 挂载 |
+| UBIFS | `ubireader_extract_images` + `ubireader_extract_files` |
+| CramFS | `cramfsck -x out` |
+| ext2/3/4 | 直接 `mount -o loop` |
+
+## 四、解包失败怎么办
+
+| 现象 | 原因 | 对策 |
+| --- | --- | --- |
+| 只有内核，没有文件系统 | 系统是 initramfs 打包进内核 | `binwalk -e` 后再解 cpio/gzip |
+| SquashFS 报压缩不支持 | 用了厂商定制 LZMA | 装 `sasquatch` 替代 `unsquashfs` |
+| 头是加密的 | 固件加密 | 找解密逻辑（通常还在 bootloader 里） |
+| 拆开是乱码 | 整体加密/压缩 | 用熵值判断，找解密函数 |
+
+**加密固件的常见弱点**：密钥硬编码在 bootloader 或某个脚本里；解密算法就是简单异或/AES-CBC，可用已知明文（文件头）推出。
+
+## 五、拿到根文件系统之后看什么
+
+```bash
+find . -name "*.cgi" -o -name "*.lua" -o -name "*.sh" | head -30
+grep -rn "admin\|password\|passwd" etc/ 2>/dev/null | head
+cat etc/passwd etc/shadow            # 口令哈希（常有默认口令）
+ls etc/init.d/                       # 启动脚本，能看服务与权限
+grep -rn "system(\|popen(\|doSystem(" --include="*.cgi" .
+```
+
+四个高价值目标：**CGI/接口脚本、口令文件、启动脚本、升级逻辑**。
+
+## 六、一个典型的固件分析产出
+
+```
+固件版本：V2.1.4
+文件系统：SquashFS (xz)
+Web 服务：lighttpd + 自研 CGI
+发现：
+  1. /etc/shadow 中 root 哈希为弱口令
+  2. /cgi-bin/setup.cgi 中 system() 直接拼接参数 → 命令注入
+  3. 升级包未校验签名
+```
+
+## 七、纪律与合规
+
+- 只在**自己购买的设备**上做
+- 不把厂商固件公开上传（可能含第三方代码）
+- 漏洞披露走厂商渠道或 CNVD，不公开利用细节
+
+## 八、练习
+
+1. 下载一台家用路由的官方固件，用 binwalk 解包并列出目录结构
+2. 在解包结果里找到 Web 服务的 CGI 目录，用 `strings` 找可疑命令拼接
+3. 用 `ubireader` 处理一个 UBIFS 镜像
+
+## 一句话总结
+
+固件分析的价值在于**它是一份完整的系统快照**：口令、脚本、服务、升级逻辑全在里面。解包只是开始，读代码才是关键。
+</script>
+
+
+<script type="text/markdown" id="md-iot-vuln">
+IoT 固件里的漏洞不像 Web 应用那么多样，**四类问题覆盖了绝大多数**。学会定位这四类，就能覆盖大部分设备。
+
+## 一、命令注入（最常见）
+
+**成因**：CGI 里用 `system()` / `popen()` 拼接用户输入。
+
+```c
+// 危险：host 来自 HTTP 参数
+char cmd[256];
+snprintf(cmd, sizeof cmd, "ping -c 1 %s", host);
+system(cmd);
+```
+
+输入 `8.8.8.8; reboot` 就能执行任意命令。
+
+**在固件里怎么找**：
+
+```bash
+grep -rn "system(\|popen(\|doSystem(\|exec(" --include="*.cgi" --include="*.lua" --include="*.sh" .
+```
+
+找到后看参数来源：`getenv("QUERY_STRING")`、`cgiFormString` 这类就是要害。
+
+**修复**：不要拼 shell 字符串，改用 `execve` 传参数数组；必须拼时做严格白名单（只允许 IP 字符集）。
+
+## 二、硬编码凭据
+
+**成因**：调试账号没删、默认口令写在二进制里。
+
+**怎么找**：
+
+```bash
+strings -a ./bin/* | grep -i "admin\|root\|passwd\|secret"
+grep -rn "root:" etc/shadow
+```
+
+也常见于：
+- `etc/passwd` 里的默认账号
+- Web 后台的硬编码 token
+- 云服务 AK/SK 写死在配置
+
+**风险**：一台设备被破解，同型号全部沦陷（口令相同）。
+
+## 三、未授权接口
+
+**成因**：CGI 或 API 没做鉴权，直接暴露在局域网（甚至公网）。
+
+**怎么找**：
+1. 看 `lighttpd.conf` / `nginx.conf` 的路由与 `auth` 配置
+2. 找 `cgi-bin` 下所有入口，逐个访问看是否需要 Cookie
+3. 关注 `/backup`、`/debug`、`/upgrade`、`/set_*` 这类敏感路径
+
+**验证**：本地起 `qemu-user` 或 `firmadyne` 模拟，直接 curl 打接口。
+
+## 四、升级校验缺失
+
+**成因**：固件升级包不验签，只校验 CRC。
+
+**后果**：攻击者能刷入任意固件（持久化、植入后门）。
+
+**怎么判断**：看升级脚本 `upgrade.sh` 或 `fwupdate` 逻辑，是否调用 `openssl verify` / 校验 RSA 签名；只做 `md5sum` 比较就是没验签。
+
+## 五、本地模拟环境怎么搭
+
+```bash
+# 架构判断
+file ./bin/busybox
+
+# 用 qemu-user 跑单个程序
+qemu-mipsel -L ./rootfs ./rootfs/usr/sbin/httpd
+
+# firmadyne / FAT 做整机模拟（更接近真实）
+```
+
+模拟的价值：**能发请求验证，而不是靠读代码猜**。
+
+## 六、还有三类值得关注
+
+| 类型 | 说明 |
+| --- | --- |
+| 缓冲区溢出 | `strcpy` 拼接长参数（MIPS 栈溢出常见） |
+| 信息泄露 | 调试页面、日志暴露路径与版本 |
+| 云侧问题 | MQTT 未授权订阅、设备 ID 可枚举 |
+
+## 七、厂商侧的修复顺序
+
+1. **去掉调试接口与默认账号**（成本最低、收益最高）
+2. **CGI 改为参数化调用**，禁止拼 shell
+3. **所有接口加鉴权**，内网也要
+4. **升级包验签**（RSA/ECDSA + 防回滚）
+5. **默认关闭公网暴露**，引导用户用 App 而非端口映射
+
+## 八、练习
+
+1. 在解包的固件里找出 3 个使用 `system()` 的 CGI，标出参数来源
+2. 检查 `etc/shadow` 是否有弱口令（自己设备，仅本地）
+3. 用 qemu-user 跑起一个 CGI，验证一次命令注入（本地环境）
+
+## 一句话总结
+
+IoT 漏洞的共性是**「信任了不该信任的输入，或省了不该省的校验」**。固件在手，读代码比扫端口有效得多。
+</script>
+
+
+<script type="text/markdown" id="md-iot-hardware">
+固件加密、系统加固都很常见，但**硬件接口往往没做保护**。一根 UART 线，常常直接送你一个 root shell。
+
+## 一、UART：四根线找到就赢一半
+
+| 引脚 | 特征 |
+| --- | --- |
+| VCC | 3.3V 或 5V 常电 |
+| GND | 与电源负极导通 |
+| TX | 空闲时高电平，启动瞬间有数据跳变 |
+| RX | 空闲时高电平 |
+
+**找法**：
+1. 万用表测电压，找 3.3V（VCC）与 0V（GND）
+2. 剩下两个是 TX/RX，用 USB-TTL 反接试（TX 接 RX）
+3. 波特率常用 115200，其次 57600 / 38400
+
+```bash
+# Linux 下连
+picocom -b 115200 /dev/ttyUSB0
+# 或
+screen /dev/ttyUSB0 115200
+```
+
+上电瞬间如果看到 `U-Boot` 或内核日志，就成功了——**很多设备在这里按任意键能中断启动，进 U-Boot 命令行**，那是最高权限。
+
+## 二、JTAG：能读能改能单步
+
+JTAG 比 UART 强得多：可以读内存、改寄存器、下断点。
+
+识别方法：
+1. 板上 10/14/20 pin 排针，丝印常为 `J1`、`JP1`
+2. 用 `JTAGulator` 自动枚举引脚
+3. 或用 OpenOCD 的 `idcode` 扫描
+
+```bash
+openocd -f interface/ftdi/ft232h.cfg -f target/mips_m4k.cfg
+# 连接成功后
+telnet localhost 4444
+> halt
+> dump_image firmware.bin 0x80000000 0x1000000
+```
+
+## 三、SPI Flash：最直接的固件读取
+
+板上 8 脚芯片（如 W25Q128）就是存放固件的地方。
+
+```bash
+# 用 CH341A + flashrom
+flashrom -p ch341a_spi -r firmware.bin
+flashrom -p ch341a_spi -w new.bin
+```
+
+**注意**：
+- 夹子（SOIC-8 clip）接触不良是最常见失败原因
+- 读之前最好先备份两份，比对一致再用
+- 有些板子上电状态下读不稳，需断电或用 3.3V 供电
+
+## 四、拿到 shell 之后做什么
+
+```bash
+id; uname -a; cat /proc/cpuinfo
+ps; netstat -antp
+mount                     # 看分区与只读挂载
+cat /etc/passwd
+ls /etc/init.d/           # 启动服务
+nvram show 2>/dev/null    # 某些设备的配置存储（常含口令）
+```
+
+三类高价值发现：
+1. **文件系统可写** → 可植入持久化
+2. **配置在 NVRAM** → 可用 `nvram` 读明文口令
+3. **调试服务在跑**（telnetd、gdbserver）→ 直接利用
+
+## 五、常见坑
+
+| 现象 | 原因 | 解决 |
+| --- | --- | --- |
+| 串口无输出 | TX/RX 接反、波特率错 | 交换线序，逐档试波特率 |
+| 输出乱码 | 电平不匹配（1.8V vs 3.3V） | 用电平转换 |
+| 能读不能写 | Flash 写保护（WP 引脚） | 拉高 WP 或断电写 |
+| 焊接点太小 | 板子密度高 | 用飞线 + 放大镜/显微镜 |
+
+## 六、纪律与安全
+
+- 断电操作，避免短路烧板
+- 只在**自己拥有**的设备上做
+- 拆机可能失去保修，先确认设备归属
+- 记录每次改动（备份原始固件、记录引脚定义）
+
+## 七、练习
+
+1. 用万用表在一台旧路由上定位 UART 的四个引脚并接出串口
+2. 用 CH341A 读取 SPI Flash，用 binwalk 验证读到的确实是固件
+3. 若能进 U-Boot，尝试 `printenv` 查看启动参数与分区表
+
+## 一句话总结
+
+硬件接口是**绕过一切软件防护的物理入口**。UART 给 shell、JTAG 给调试、SPI 给完整固件——三者配合，几乎无设备不可分析。
+</script>
+
+
+<script type="text/markdown" id="md-mal-family">
+家族归因的目标不是「起个名字」，而是**把样本连成线**：谁在做、用的什么工具、下一步会怎么变。
+
+## 一、四个归因维度
+
+| 维度 | 证据 | 稳定性 |
+| --- | --- | --- |
+| 代码 | 函数结构、常量、编译特征 | 高（改造成本高） |
+| 字符串 | 路径、注册表键、互斥体、提示语 | 中（易改但常忘改） |
+| 网络 | C2 域名/IP、URI、协议格式 | 中（可换，但换了要重配） |
+| TTP | 持久化方式、提权路径、横向手法 | 高（体现作者习惯） |
+
+**代码与 TTP 权重最高**，字符串与网络权重次之。只看 C2 域名会把不同家族归成一类，只看字符串又会把同一家族拆散。
+
+## 二、三个相似度指标
+
+```bash
+# 1. 导入表哈希（编译级别特征）
+python3 -c "import pefile;print(hex(pefile.PE('a.exe').get_imphash()))"
+
+# 2. 模糊哈希（整体相似）
+ssdeep a.exe b.exe
+
+# 3. 节区熵与大小对比
+python3 -c "import pefile;p=pefile.PE('a.exe');[print(s.Name, round(s.get_entropy(),2)) for s in p.sections]"
+```
+
+判读经验：
+
+| 指标 | 相同意味着 |
+| --- | --- |
+| imphash 相同 | 链接的库与调用几乎一致（同一构建链） |
+| ssdeep > 70 | 整体结构相似（可能只是改配置） |
+| 关键节熵一致 | 加密/压缩方式相同 |
+| 常量字符串相同 | 同一份源码编译 |
+
+## 三、TTP 才是「指纹」
+
+ATT&CK 的技术编号是很实用的比对表：
+
+| 家族 | 典型 TTP |
+| --- | --- |
+| 勒索软件 | T1486 数据加密、T1490 禁用恢复、T1562 关杀软 |
+| 挖矿木马 | T1496 资源劫持、T1053 计划任务、T1071 应用层协议 C2 |
+| 远控（RAT） | T1071、T1105 工具传输、T1112 改注册表 |
+| 窃密木马 | T1555 浏览器凭据、T1560 归档、T1041 外传 |
+
+**两个样本的 TTP 集合高度重合，即使代码完全不同，也大概率是同一团伙的不同工具**。
+
+## 四、归因报告的最小结构
+
+```
+样本：3 个（含哈希）
+结论：属于同一家族（置信度：中高）
+依据：
+  1. 三者 imphash 相同 → 同一构建链
+  2. 互斥体名一致（Global\xxx_1.2）
+  3. C2 域名共用同一 NS 与注册商
+  4. 均使用「计划任务 + 定时外连」的持久化组合
+反证：某个样本的网络协议不同，可能是变种
+未知：是否同一操作者（需要基础设施与情报交叉）
+```
+
+**必须写「反证」和「未知」**，否则归因会变成自我说服。
+
+## 五、避免误判的四条
+
+1. **不要只看 C2**：基础设施可以共用（同一个 C2 面板卖给多个团伙）
+2. **不要只看壳**：同一个商业壳被大量家族使用
+3. **注意「同源不同族」**：泄露的源码被多方使用
+4. **保留置信度**：写「中/高」而不是「确定」
+
+## 六、工具链
+
+| 用途 | 工具 |
+| --- | --- |
+| 哈希与相似度 | `ssdeep`、`tlsh`、`imphash` |
+| 二进制比对 | BinDiff、Diaphora（IDA/Ghidra 插件） |
+| 字符串与配置提取 | `strings`、`floss`、家族专用配置提取脚本 |
+| TTP 映射 | ATT&CK Navigator |
+| 情报关联 | VirusTotal、MalwareBazaar、被动 DNS |
+
+## 七、练习
+
+1. 取三个同家族样本（公开教学集），比对 imphash 与 ssdeep，写出判断依据
+2. 用 ATT&CK Navigator 给一个家族打标，导出热力图
+3. 找一个「同 C2 不同家族」的案例，说明为什么不能只看基础设施
+
+## 一句话总结
+
+家族归因是**多证据交叉**的活：代码给「同源」、TTP 给「同人」、基础设施给「同伙」。任何单一证据都不足以定论。
+</script>
+
+
+<script type="text/markdown" id="md-mal-yara">
+分析完一个样本，最重要的产出不是报告，而是**能自动抓到它的规则**。YARA 就是这件事的标准工具。
+
+## 一、规则的四段结构
+
+```yara
+rule Ransomware_Generic_Locked_Ext {
+    meta:
+        author = "afei"
+        date = "2026-10-21"
+        description = "通过 .locked 扩展名与勒索提示文本识别"
+        severity = "high"
+
+    strings:
+        $ext1 = ".locked" ascii wide
+        $ext2 = ".encrypted" ascii wide
+        $note = "your files have been encrypted" nocase
+
+    condition:
+        uint16(0) == 0x5A4D and        // MZ 头，确保是 PE
+        filesize < 10MB and
+        2 of ($ext*) and
+        $note
+}
+```
+
+四段：`meta`（元信息）、`strings`（特征）、`condition`（逻辑）。`rule` 名要有意义，别叫 `detect1`。
+
+## 二、字符串怎么选
+
+| 类型 | 写法 | 适用 |
+| --- | --- | --- |
+| 文本 | `"C:\\Users\\Public\\svchost.exe"` | 路径、互斥体、提示语 |
+| 十六进制 | `{ 4D 5A 90 00 03 }` | 机器码片段、加密常量 |
+| 正则 | `/https?:\/\/[a-z0-9.-]+\.top/` | 域名模式、变体多的串 |
+| 宽字符 | `"cmd.exe" wide` | Windows 常见 |
+
+三条经验：
+1. **优先长且独特的字符串**（互斥体名、罕见路径、PDB 路径）
+2. **避免 `"http://"` 这种通用串**，误报会爆炸
+3. 十六进制里用 `??` 做通配：`{ 8B ?? 24 10 }`
+
+## 三、条件写法
+
+```yara
+condition:
+    uint16(0) == 0x5A4D and
+    filesize < 5MB and
+    (2 of ($api*) or $mutex) and
+    not $clean_bin
+```
+
+常用形式：
+
+| 写法 | 含义 |
+| --- | --- |
+| `all of them` | 全部命中 |
+| `any of ($a*)` | 任一名命中 |
+| `2 of ($s*)` | 至少两个 |
+| `#s1 > 3` | 字符串出现次数 |
+| `$s at 0` | 出现在文件头 |
+
+## 四、三条可落地模板
+
+**1. 凭据窃取类**
+
+```yara
+rule Stealer_Browser_Cred {
+    strings:
+        $p1 = "Login Data" ascii wide
+        $p2 = "Web Data" ascii wide
+        $p3 = "Local State" ascii wide
+        $z  = "archive.zip" nocase
+    condition:
+        uint16(0) == 0x5A4D and 3 of ($p*) and $z
+}
+```
+
+**2. 挖矿类**
+
+```yara
+rule Miner_Stratum_Config {
+    strings:
+        $s1 = "stratum+tcp://" ascii
+        $s2 = "stratum+ssl://" ascii
+        $w  = "wallet" nocase
+        $x  = "xmrig" nocase
+    condition:
+        any of ($s*) or ($w and $x)
+}
+```
+
+**3. 通用 Webshell（脚本类）**
+
+```yara
+rule Webshell_PHP_Eval_Request {
+    strings:
+        $e = "eval(" ascii
+        $r1 = "$_POST" ascii
+        $r2 = "$_REQUEST" ascii
+        $b = "base64_decode" ascii
+    condition:
+        filesize < 100KB and $e and any of ($r*) and $b
+}
+```
+
+## 五、性能与误报控制
+
+| 问题 | 对策 |
+| --- | --- |
+| 扫描慢 | 加 `filesize` 限制；避免纯正则开场 |
+| 误报高 | 用「长串 + 多条件与」而非单串匹配 |
+| 漏报变体 | 关键串加 `wide`、用 `??` 通配 |
+| 规则膨胀 | 用 `include` 拆分公共串，定期清理 |
+
+**误报的代价比漏报更高**：一条老是误报的规则，团队会整体忽略规则库。
+
+## 六、在流水线里用
+
+```bash
+# 单文件
+yara rules.yar sample.exe
+
+# 目录递归
+yara -r rules/ /samples/
+
+# 与 Python 集成
+python3 -c "import yara;r=yara.compile('rules.yar');print(r.match('sample.exe'))"
+```
+
+## 七、规则维护的三个习惯
+
+1. **每条规则写「为什么这么写」**（meta 里的 description）
+2. **留下反例样本**：验证不误报
+3. **定期回归**：用历史样本集跑一遍，看新增误报
+
+## 八、练习
+
+1. 给一个公开教学样本写一条规则，要求 `filesize < 2MB` 且至少两个字符串命中
+2. 用 100 个正常 PE 文件测误报率，调整到 0
+3. 把三条模板规则合并成一个规则集，用 `-r` 批量扫描样本目录
+
+## 一句话总结
+
+YARA 的核心不是语法，而是**选对特征**：选独特且稳定的串，用多条件降低误报，用 meta 记录判断依据。
+</script>
+
+
+<script type="text/markdown" id="md-mal-report">
+分析的价值有两层：**解决这一个样本**，以及**让下一次更快**。后者靠报告与沉淀。
+
+## 一、报告的标准结构
+
+```
+1. 摘要（给管理者，5 行内）
+   - 样本类型 / 家族 / 危害 / 是否已处置
+2. 基本信息
+   - 文件名、大小、哈希（MD5/SHA1/SHA256）、编译时间、签名
+3. 静态特征
+   - 是否加壳、节区熵、导入表关键 API
+4. 动态行为（时间线）
+   - 进程树、落地文件、注册表、网络连接
+5. 关键分析
+   - 核心逻辑（如「读取浏览器凭据 → 打包 → POST 上传」）
+6. IOC 清单（分级）
+7. 检测与处置建议
+8. 附录（命令、截图、YARA 规则）
+```
+
+## 二、IOC 要分级，才有人用
+
+| 级别 | 类型 | 有效期 | 用途 |
+| --- | --- | --- | --- |
+| 高 | 文件哈希（SHA256） | 永久（针对该样本） | 阻断、回溯 |
+| 中 | 域名、IP、URI 路径 | 数周 | 封禁、告警 |
+| 低 | 互斥体名、注册表键 | 长期 | 主机排查 |
+| 行为 | TTP、命令行特征 | 长期 | 检测规则 |
+
+**只给哈希的情报基本没用**：改一个字节就失效。真正有用的是「行为特征」——它对应一类样本。
+
+## 三、从样本到检测的落地路径
+
+```
+样本 → 行为提取 → YARA/Sigma 规则 → 接入 EDR/SIEM → 回溯历史数据 → 确认影响面
+```
+
+关键是最后一步「**回溯**」：拿到新 IOC 后，立刻在历史日志里查有没有出现过——很多入侵是这时候才发现的。
+
+```sql
+-- 示意：在 SIEM 里回溯
+SELECT host, user, time FROM dns_logs
+WHERE domain IN ('bad.example.com') AND time > now() - 90d;
+```
+
+## 四、团队级样本库怎么建
+
+| 内容 | 说明 |
+| --- | --- |
+| 样本存储 | 按 SHA256 命名，只读，带采集信息 |
+| 元数据 | 首次发现时间、来源、家族、标签、关联事件 |
+| 规则库 | YARA 按家族/行为分类，版本管理 |
+| 报告库 | 每份报告可检索（按家族、TTP、IOC） |
+| 复盘记录 | 误判案例同样入库（负样本同样宝贵） |
+
+**样本库的价值在「可检索」**：下次遇到相似样本，能立刻找到上次的结论。
+
+## 五、报告写作的四个要点
+
+1. **结论先行**：第一段就说「这是什么、有多严重、建议做什么」
+2. **证据可复现**：每条行为都附命令或截图，别人能照做
+3. **区分事实与推断**：写「观察到 X」与「推测是 Y」要分开
+4. **给出可执行建议**：不要写「加强防护」，要写「封禁域名 X、检查主机 A 的 4688 事件」
+
+## 六、一次完整的处置闭环
+
+```
+① 发现：EDR 告警某主机执行可疑 PowerShell
+② 分析：提取命令行 → 定位落地文件 → 沙箱跑行为
+③ 判定：确认为窃密木马，C2 为 bad.example.com
+④ 处置：隔离主机、封禁域名、重置相关凭据
+⑤ 回溯：全量 DNS 日志查该域名，发现另外 3 台
+⑥ 加固：补检测规则、更新 YARA、培训钓鱼识别
+⑦ 复盘：为什么没在第一步拦住（是规则缺失还是没开日志）
+```
+
+**第 ⑦ 步最有价值**：它决定了下次能不能更早发现。
+
+## 七、常见问题
+
+| 问题 | 后果 |
+| --- | --- |
+| 只写「疑似木马」 | 无法处置 |
+| IOC 不标有效期 | 半年后还在封已失效的域名 |
+| 不回溯历史日志 | 漏掉同批受害主机 |
+| 不更新规则 | 同族变种再来一次还是抓不到 |
+| 报告不写误判 | 团队重复踩坑 |
+
+## 八、练习
+
+1. 给一个教学样本写一份完整报告（按上面八段）
+2. 把它的 IOC 分成四级，并说明每级的处置动作
+3. 假设你是防守方，写出「拿到这份报告后 24 小时内要做的 5 件事」
+
+## 一句话总结
+
+样本分析的终点不是「看懂这一个」，而是**沉淀成规则、情报与流程**，让下一个样本被更早拦住。
+</script>
+
+
 <script src="assets/posts.js"></script>
 <script src="assets/app.js"></script>
 </body>
