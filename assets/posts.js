@@ -245,7 +245,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-memory',
     title: 'C 语言的内存模型：栈、堆、静态区到底怎么分',
-    excerpt: '学 C 卡住的人九成卡在内存上：变量住在哪、什么时候被回收、为什么 free 之后指针还能读到脏数据。这篇把四块内存区讲透，附一个手写动态数组的完整实现。',
+    excerpt: '学 C 崩在指针，多半是脑子里没内存地图。四块区域怎么分、三条结论、手写一个动态数组，再配 ASan 查泄漏。',
     date: '2026-11-18',
     category: 'C/C++',
     level: '进阶',
@@ -259,7 +259,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-pointers-arrays',
     title: '数组和指针不是一回事：那些被 sizeof 骗过的时刻',
-    excerpt: '「数组名就是指针」这句话害了不少人。它在函数传参时成立，在 sizeof 面前立刻破产。这篇用四个实验把两者的边界划清，并给出 C++ 里不该再用裸数组的理由。',
+    excerpt: '数组和指针不是一个东西。四个小实验——sizeof、&、赋值、越界——做完就分清了，外带现代 C++ 的替代写法。',
     date: '2026-11-16',
     category: 'C/C++',
     level: '进阶',
@@ -273,7 +273,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-raii',
     title: 'RAII 与智能指针：C++ 里没有 finally，也不需要',
-    excerpt: '为什么 C++ 不用写 finally 也不会漏释放资源？因为析构函数会在所有退出路径上自动执行。这篇讲清 RAII 的原理，以及 unique_ptr / shared_ptr 各自该在什么时候用。',
+    excerpt: 'C++ 没有 finally，也不需要。资源绑对象，出作用域自动收。unique 和 shared 怎么选、为什么要 weak_ptr，一篇说完。',
     date: '2026-11-13',
     category: 'C/C++',
     level: '高级',
@@ -287,7 +287,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-build',
     title: '从 .cpp 到可执行文件：undefined reference 到底在骂谁',
-    excerpt: '编译通过但链接失败，是新手最困惑的一类报错。这篇把预处理、编译、汇编、链接四步拆开，用 nm 和 g++ -E 亲手验证，让你看到符号是怎么丢的。',
+    excerpt: '按一下编译，中间过了四道工序。四个阶段、符号表怎么看、undefined reference 的六个来源，一次讲透。',
     date: '2026-11-10',
     category: 'C/C++',
     level: '进阶',
@@ -301,7 +301,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-containers',
     title: 'list、dict、set 的底层：为什么 dict 查找是 O(1)',
-    excerpt: '写 Python 三年还在用 list 查成员？这篇讲清三种容器的实现结构（动态数组 vs 哈希表），给出复杂度对照表，以及五个能立刻提速的重写习惯。',
+    excerpt: '同一段逻辑换个容器快十倍，原因不神秘：list 是数组，dict 是哈希表。复杂度对照表 + 五个立刻能改的写法。',
     date: '2026-11-06',
     category: 'Python',
     level: '进阶',
@@ -315,7 +315,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-generators',
     title: '生成器与迭代器：yield 到底暂停了什么',
-    excerpt: 'yield 不是一个「返回值」的语法糖，它是把函数变成状态机的开关。这篇从 for 循环的协议讲起，用生成器搭一条流式处理管道，并说明为什么它能省下整个列表的内存。',
+    excerpt: 'yield 暂停的到底是什么？从 for 循环怎么工作讲起，一路讲到管道式处理，外带五个容易踩的细节。',
     date: '2026-11-02',
     category: 'Python',
     level: '进阶',
@@ -329,7 +329,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-decorators',
     title: '装饰器：从闭包到带参数的装饰器，一次讲透',
-    excerpt: '装饰器难不在语法，难在第一次看到三层嵌套。这篇从闭包讲起，一步步推到带参数装饰器、类装饰器，并给出四个生产环境真用得上的例子。',
+    excerpt: '装饰器不是魔法，是四步叠出来的：函数当参数 → 闭包 → 套一层 → 再套一层。按顺序走一次就通。',
     date: '2026-10-30',
     category: 'Python',
     level: '高级',
@@ -343,7 +343,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-gil',
     title: 'GIL 与并发选型：线程、进程、asyncio 到底选哪个',
-    excerpt: '「Python 多线程是假的」这个说法对了一半。这篇用三次实测说明 GIL 影响什么、不影响什么，并给出一张按任务类型选方案的决策表。',
+    excerpt: '「Python 多线程是假的」只对一半。GIL 拦什么、不拦什么，三次实测说清，最后给一张选型决策表。',
     date: '2026-10-25',
     category: 'Python',
     level: '高级',
@@ -357,7 +357,7 @@ window.BLOG_POSTS = [
   {
     slug: 'ai-prompt',
     title: '提示词工程：把「说清楚」变成可复用的模板',
-    excerpt: '提示词不是玄学，它是一种接口设计。这篇给出一个五段式结构、三种最有效的技巧（few-shot、拆步骤、给格式），以及如何用测试集判断改动到底有没有变好。',
+    excerpt: '提示词写得烂，八成不是文笔问题，是缺结构。一个五段式框子、三个真管用的技巧，还有怎么验证改动有效。',
     date: '2026-10-20',
     category: 'AI',
     level: '进阶',
@@ -399,7 +399,7 @@ window.BLOG_POSTS = [
   {
     slug: 'ai-workflow',
     title: '把 AI 放进日常工作流：三个真用得上的场景和一条铁律',
-    excerpt: 'AI 用得好的和用得差的，差别不在模型，在流程：把「问一句」换成「有输入、有验收标准、有留痕」。这篇给出读代码、写文档、做复盘三个可复制的流程。',
+    excerpt: '差别不在模型，在有没有把它嵌进流程。读代码、写文档、复盘故障三个场景，加一条能套用的模板。',
     date: '2026-10-05',
     category: 'AI',
     level: '进阶',
@@ -413,7 +413,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-start',
     title: '从零开始：装好环境，跑通第一个 C 程序',
-    excerpt: '学 C 的第一步不是语法，是让「写代码 → 编译 → 运行」这条链路先通。这篇讲清编译器装什么、gcc 命令每个参数干什么、报错怎么读，最后跑通一个能交互的小程序。',
+    excerpt: '装编译器、写第一行代码、看懂那条命令和它吐的报错。这篇把「从零跑起来」这段路铺平，新手常卡的地方都标了。',
     date: '2026-11-21',
     category: 'C/C++',
     level: '基础',
@@ -427,7 +427,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-types',
     title: '变量、类型与运算符：内存里到底存了什么',
-    excerpt: 'int 为什么是 4 字节、char 能不能存中文、i++ 和 ++i 差在哪、整数溢出为什么会变负数。这篇用 sizeof 和边界值实验，把类型这件事从「背」变成「看懂」。',
+    excerpt: '类型就两件事：占多大、怎么解释。sizeof 量一遍、溢一次、转错一回，比背表管用。附带中文存不存得下这个老问题。',
     date: '2026-11-20',
     category: 'C/C++',
     level: '基础',
@@ -441,7 +441,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-flow',
     title: '流程控制与函数：if、循环、递归怎么写才不出错',
-    excerpt: '分支写错多半是边界条件，循环写错多半是终止条件，递归写错多半是忘了出口。这篇用四个小例子把这三种错各踩一遍，再给出可复用的写法。',
+    excerpt: '八成流程 bug 都在边界：该写 <= 的地方写了 <。if、三种循环、函数、递归，逐个把边界讲清楚，最后拼成一个小游戏。',
     date: '2026-11-19',
     category: 'C/C++',
     level: '基础',
@@ -455,7 +455,7 @@ window.BLOG_POSTS = [
   {
     slug: 'cpp-stl',
     title: 'STL 与模板入门：vector、map 和泛型为什么值得学',
-    excerpt: '手写链表、手写动态数组是学习，不是生产。这篇讲 STL 三大件（容器、迭代器、算法）怎么用，模板为什么写在头文件里，以及五个最常见的误用。',
+    excerpt: 'STL 是一套约定，不是 API 大全。容器、迭代器、算法三件套，加上 vector 和 map 的选型，以及模板为何写在头文件。',
     date: '2026-11-17',
     category: 'C/C++',
     level: '高级',
@@ -469,7 +469,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-start',
     title: '从零开始：装 Python、跑通第一个脚本、看懂报错',
-    excerpt: '学 Python 最省事的一点是不用编译，但「解释器在哪、包怎么装、报错怎么读」这三件事不说清，照样卡住。这篇从装环境一路走到能跑一个处理文件的小脚本。',
+    excerpt: '新手卡的三件事：版本装不对、包乱装、报错看不懂。这篇按顺序过掉，最后写一个真能用的小脚本。',
     date: '2026-11-18',
     category: 'Python',
     level: '基础',
@@ -483,7 +483,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-types',
     title: '数据类型与容器：字符串、列表、字典怎么选',
-    excerpt: 'Python 不声明类型，但类型一直在起作用。这篇把 str/list/tuple/dict/set 的适用场景讲清，配 12 个必会的字符串与列表操作，最后给出「什么时候用哪个」的判断表。',
+    excerpt: '字符串、列表、字典、set 各管一段，选错了也能跑，只是又慢又难改。给判断标准，不给背诵表。',
     date: '2026-11-17',
     category: 'Python',
     level: '基础',
@@ -497,7 +497,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-flow-module',
     title: '流程控制、函数与模块：把脚本拆成可复用的零件',
-    excerpt: '脚本能跑和代码能用是两件事。这篇讲 if/for/while 的边界写法、函数参数的五种形态，以及怎么把一堆脚本拆成模块与包，最后给出一个可导入可运行的目录结构。',
+    excerpt: '脚本能跑和能维护，差的是结构。参数五种形态、作用域 LEGB、模块怎么拆，还有那个 if __name__ 到底在干嘛。',
     date: '2026-11-16',
     category: 'Python',
     level: '基础',
@@ -511,7 +511,7 @@ window.BLOG_POSTS = [
   {
     slug: 'py-oop',
     title: '类、异常与文件：写能维护的 Python 程序',
-    excerpt: '类不是必须的，但它能把「数据 + 行为」绑在一起。这篇讲类的四个必备成员、异常的三种用法（捕获/抛出/自定义），以及文件与 JSON 读写的稳妥写法。',
+    excerpt: '不灌概念，只讲真会用到的：类怎么写、组合为什么优先于继承、dataclass 省了什么、异常和文件怎么安全收尾。',
     date: '2026-11-15',
     category: 'Python',
     level: '进阶',
@@ -765,7 +765,7 @@ window.BLOG_POSTS = [
   {
     slug: 'ctf-pwn-route',
     title: 'CTF Pwn 方向训练路线：从保护判断到堆利用',
-    excerpt: 'Pwn 是最考基本功的方向：汇编、内存布局、调用约定、调试能力缺一不可。这篇给一条从「看懂 checksec」到「堆利用入门」的路线，并说明每阶段该刷什么题、该掌握哪些套路。',
+    excerpt: 'Pwn 的门槛不在题，在得先懂程序怎么跑。按能力分四段排路线，每段说清练什么、卡住回头补哪块。',
     date: '2026-11-03',
     category: '网络安全',
     track: 'CTF 实战',
@@ -780,7 +780,7 @@ window.BLOG_POSTS = [
   {
     slug: 'ctf-crypto-route',
     title: 'CTF Crypto 方向训练路线：从编码识别到格攻击',
-    excerpt: 'Crypto 题不考「会不会写代码」，考的是「能不能看出这题在考什么」。这篇讲编码/古典/现代密码的分层训练法、常见攻击场景（小指数、共模、广播、Padding Oracle），以及数学补到什么程度够用。',
+    excerpt: 'Crypto 不靠猜，全靠推理。四层能力排下来，每层给识别信号；别按题号刷，按模式刷。',
     date: '2026-11-02',
     category: '网络安全',
     track: 'CTF 实战',
@@ -795,7 +795,7 @@ window.BLOG_POSTS = [
   {
     slug: 'intra-kerberos',
     title: 'Kerberos 原理：域认证为什么能被滥用',
-    excerpt: '内网渗透绕不开 Kerberos。这篇讲清 TGT/TGS 的签发流程、PAC 与 SPN 的作用，再对应讲到四种经典滥用（Kerberoasting、AS-REP Roasting、票据传递、委派），并给出检测点。',
+    excerpt: '不懂票据怎么发的，抓票据重放就全是口诀。三个角色、认证流程、四种滥用，最后落到 4769 这些检测点。',
     date: '2026-11-01',
     category: '网络安全',
     track: '内网渗透',
@@ -810,7 +810,7 @@ window.BLOG_POSTS = [
   {
     slug: 'intra-recon',
     title: '域内信息收集：从一台机器到整张地图',
-    excerpt: '进入内网后，第一件事是搞清楚「我在哪、周围有什么、谁能通向域控」。这篇讲主机信息、域内枚举、BloodHound 的攻击路径分析，以及如何把零散信息整理成可执行的攻击图。',
+    excerpt: '进了一台机器，先别急着打，先搞清这是哪儿。五个枚举维度、BloodHound 怎么用、信息怎么拼成图。',
     date: '2026-10-31',
     category: '网络安全',
     track: '内网渗透',
@@ -825,7 +825,7 @@ window.BLOG_POSTS = [
   {
     slug: 'intra-lateral',
     title: '横向移动与检测：从一台主机到一片内网',
-    excerpt: '横向是「渗透是否严重」的分水岭。这篇讲四类横向手法（远程执行、凭据复用、票据、代理隧道）、各自的日志特征，以及蓝队如何用「异常登录 + 异常服务创建」把它们抓出来。',
+    excerpt: '手法没多少，难的是别留痕别打崩。四类手法各留什么痕迹、蓝队盯哪四条线、红队该守哪三条纪律。',
     date: '2026-10-29',
     category: '网络安全',
     track: '内网渗透',
@@ -840,7 +840,7 @@ window.BLOG_POSTS = [
   {
     slug: 'win-kernel-basics',
     title: 'Windows 内核架构：从 Ring 3 到 Ring 0 的分界线',
-    excerpt: '内核漏洞难在「看不见」：用户态程序的一举一动都有 API 兜着，内核里的错误直接蓝屏。这篇讲清内核对象、驱动加载、IRP 与 SSDT 的作用，以及为什么一个参数校验缺失就是提权。',
+    excerpt: '内核漏洞为什么等于提权？不搞清 Ring 0 里有什么，这句就只能死记。按「谁在管什么」把内核拆一遍。',
     date: '2026-10-28',
     category: '网络安全',
     track: 'Windows 内核',
@@ -855,7 +855,7 @@ window.BLOG_POSTS = [
   {
     slug: 'win-driver-ioctl',
     title: '驱动与 IOCTL：用户态怎么把数据送进内核',
-    excerpt: '驱动漏洞八成出在 IOCTL 处理函数里。这篇讲清三种缓冲方式（Buffered/Direct/Neither）、控制码的构造、以及四类最常见的校验缺失——每种都配一段「错误写法 vs 正确写法」。',
+    excerpt: '内核提权一大半入口是 IOCTL 没校验。三种缓冲方式的区别、四类校验缺失长什么样、正确写法怎么补。',
     date: '2026-10-27',
     category: '网络安全',
     track: 'Windows 内核',
@@ -870,7 +870,7 @@ window.BLOG_POSTS = [
   {
     slug: 'win-kernel-exploit',
     title: '内核漏洞利用思路：从任意写到 Token 窃取',
-    excerpt: '拿到内核任意写之后要做什么？这篇讲利用链的三个阶段（稳定触发、定位目标、修改对象），Token 替换与 PreviousMode 两种提权路径，以及现代缓解下为什么越来越难。',
+    excerpt: '目标很朴素：把当前进程的 Token 换成 SYSTEM。三条路径、任意读写怎么来、为什么现代 Windows 越来越难打。',
     date: '2026-10-26',
     category: '网络安全',
     track: 'Windows 内核',
@@ -885,7 +885,7 @@ window.BLOG_POSTS = [
   {
     slug: 'iot-firmware',
     title: '固件提取与解包：从设备里把文件系统挖出来',
-    excerpt: 'IoT 安全的第一步是拿到固件。这篇讲三条获取路径（厂商下载、OTA 抓包、SPI Flash 读取）、binwalk 解包流程、常见文件系统（squashfs/UBIFS/JFFS2）的处理，以及解包失败时怎么办。',
+    excerpt: '做 IoT 第一步不是找漏洞，是把固件弄到手。三条获取路径、binwalk 解包、解不开的四种原因和对策。',
     date: '2026-10-25',
     category: '网络安全',
     track: '固件与 IoT',
@@ -900,7 +900,7 @@ window.BLOG_POSTS = [
   {
     slug: 'iot-vuln',
     title: '固件里的漏洞挖掘：四类高发问题与验证方法',
-    excerpt: 'IoT 漏洞高度集中：命令注入、硬编码凭据、未授权接口、升级校验缺失。这篇讲每一类的成因、在固件里怎么定位、如何在本地模拟环境验证，以及厂商该怎么修。',
+    excerpt: '固件漏洞翻来覆去就那几类。命令注入、硬编码凭据、未授权接口、升级校验缺失，认准这四个能覆盖大多数。',
     date: '2026-10-24',
     category: '网络安全',
     track: '固件与 IoT',
@@ -915,7 +915,7 @@ window.BLOG_POSTS = [
   {
     slug: 'iot-hardware',
     title: '硬件接口与调试：UART、JTAG 与 SPI Flash 实操',
-    excerpt: '固件加密拿不到？那就在硬件上找突破口。这篇讲万用表找 UART 的四根线、JTAG 识别与 OpenOCD 连接、SPI Flash 直接读取，以及拿到 shell 后能做什么。',
+    excerpt: '固件加密、OTA 抓不到，就只能上硬件。UART 找四根线、JTAG 单步调试、SPI 直读 Flash，学会一样就够用。',
     date: '2026-10-23',
     category: '网络安全',
     track: '固件与 IoT',
@@ -930,7 +930,7 @@ window.BLOG_POSTS = [
   {
     slug: 'mal-family',
     title: '样本家族与归因：怎么判断两个样本是「一家」',
-    excerpt: '同一家族的样本往往共享代码、配置格式与基础设施。这篇讲归因的四个维度（代码、字符串、网络、TTP）、相似度计算方法（ssdeep、imphash、BinDiff），以及如何避免「看起来像就归一类」的误判。',
+    excerpt: '判断两个样本是不是一家，靠的不是感觉。四个维度互相印证、三个相似度指标、还有怎么避免自信地判错。',
     date: '2026-10-22',
     category: '网络安全',
     track: '样本分析',
@@ -945,7 +945,7 @@ window.BLOG_POSTS = [
   {
     slug: 'mal-yara',
     title: 'YARA 规则实战：把「我认识这个样本」变成可执行检测',
-    excerpt: 'YARA 是样本检测的通用语言。这篇讲规则的四段结构、字符串选型（文本/十六进制/正则）、条件写法、性能与误报控制，并给三条可直接落地的规则模板。',
+    excerpt: 'YARA 的价值不是「我认识这个样本」，是把这句话变成别人也能跑的规则。四段结构、字符串怎么选、误报怎么压。',
     date: '2026-10-21',
     category: '网络安全',
     track: '样本分析',
@@ -960,7 +960,7 @@ window.BLOG_POSTS = [
   {
     slug: 'mal-report',
     title: '样本报告与情报沉淀：让一次分析变成长期能力',
-    excerpt: '分析完不写报告，等于没做。这篇讲报告的标准结构（摘要/行为/技术/IOС/建议）、IOC 的分级与有效期、如何把样本接入检测体系，以及团队级的样本库怎么建。',
+    excerpt: '分析做得再漂亮，报告没人看懂就等于没做。八段结构、IOC 四级分级、从样本到 EDR 的落地路径。',
     date: '2026-10-20',
     category: '网络安全',
     track: '样本分析',
