@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>阿飞日记</title>
+    <title>阿飞观察站</title>
     <link>https://freedomly1.github.io/blog/</link>
     <description>一个前端工程师的公开笔记。写界面与工程，也写正在折腾的 AI 工作台——把爬虫、笔记、写稿收进同一条流水线。</description>
     <language>zh-CN</language>
-    <copyright>© 2026 阿飞日记</copyright>
+    <copyright>© 2026 阿飞观察站</copyright>
     <lastBuildDate>Mon, 23 Nov 2026 09:00:00 -0000</lastBuildDate>
     <atom:link href="https://freedomly1.github.io/blog/feed.xml" rel="self" type="application/rss+xml"/>
 
@@ -18,6 +18,30 @@
       <description>一个人写的小车控制台最后长成了什么样：固件看门狗和 500ms 心跳的账、把转发地址填成自己后 4 秒 11932 次请求、以及为什么我把视觉放在浏览器里而不是服务端。</description>
     </item>
     <item>
+      <title>从零开始：装好环境，跑通第一个 C 程序</title>
+      <link>https://freedomly1.github.io/blog/#/post/cpp-start</link>
+      <guid isPermaLink="false">afei-cpp-start</guid>
+      <pubDate>Sat, 21 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>学 C 的第一步不是语法，是让「写代码 → 编译 → 运行」这条链路先通。这篇讲清编译器装什么、gcc 命令每个参数干什么、报错怎么读，最后跑通一个能交互的小程序。</description>
+    </item>
+    <item>
+      <title>变量、类型与运算符：内存里到底存了什么</title>
+      <link>https://freedomly1.github.io/blog/#/post/cpp-types</link>
+      <guid isPermaLink="false">afei-cpp-types</guid>
+      <pubDate>Fri, 20 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>int 为什么是 4 字节、char 能不能存中文、i++ 和 ++i 差在哪、整数溢出为什么会变负数。这篇用 sizeof 和边界值实验，把类型这件事从「背」变成「看懂」。</description>
+    </item>
+    <item>
+      <title>流程控制与函数：if、循环、递归怎么写才不出错</title>
+      <link>https://freedomly1.github.io/blog/#/post/cpp-flow</link>
+      <guid isPermaLink="false">afei-cpp-flow</guid>
+      <pubDate>Thu, 19 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>分支写错多半是边界条件，循环写错多半是终止条件，递归写错多半是忘了出口。这篇用四个小例子把这三种错各踩一遍，再给出可复用的写法。</description>
+    </item>
+    <item>
       <title>C 语言的内存模型：栈、堆、静态区到底怎么分</title>
       <link>https://freedomly1.github.io/blog/#/post/cpp-memory</link>
       <guid isPermaLink="false">afei-cpp-memory</guid>
@@ -26,12 +50,52 @@
       <description>学 C 卡住的人九成卡在内存上：变量住在哪、什么时候被回收、为什么 free 之后指针还能读到脏数据。这篇把四块内存区讲透，附一个手写动态数组的完整实现。</description>
     </item>
     <item>
+      <title>从零开始：装 Python、跑通第一个脚本、看懂报错</title>
+      <link>https://freedomly1.github.io/blog/#/post/py-start</link>
+      <guid isPermaLink="false">afei-py-start</guid>
+      <pubDate>Wed, 18 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>学 Python 最省事的一点是不用编译，但「解释器在哪、包怎么装、报错怎么读」这三件事不说清，照样卡住。这篇从装环境一路走到能跑一个处理文件的小脚本。</description>
+    </item>
+    <item>
+      <title>STL 与模板入门：vector、map 和泛型为什么值得学</title>
+      <link>https://freedomly1.github.io/blog/#/post/cpp-stl</link>
+      <guid isPermaLink="false">afei-cpp-stl</guid>
+      <pubDate>Tue, 17 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>手写链表、手写动态数组是学习，不是生产。这篇讲 STL 三大件（容器、迭代器、算法）怎么用，模板为什么写在头文件里，以及五个最常见的误用。</description>
+    </item>
+    <item>
+      <title>数据类型与容器：字符串、列表、字典怎么选</title>
+      <link>https://freedomly1.github.io/blog/#/post/py-types</link>
+      <guid isPermaLink="false">afei-py-types</guid>
+      <pubDate>Tue, 17 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>Python 不声明类型，但类型一直在起作用。这篇把 str/list/tuple/dict/set 的适用场景讲清，配 12 个必会的字符串与列表操作，最后给出「什么时候用哪个」的判断表。</description>
+    </item>
+    <item>
       <title>数组和指针不是一回事：那些被 sizeof 骗过的时刻</title>
       <link>https://freedomly1.github.io/blog/#/post/cpp-pointers-arrays</link>
       <guid isPermaLink="false">afei-cpp-pointers-arrays</guid>
       <pubDate>Mon, 16 Nov 2026 09:00:00 -0000</pubDate>
       <category>编程教程</category>
       <description>「数组名就是指针」这句话害了不少人。它在函数传参时成立，在 sizeof 面前立刻破产。这篇用四个实验把两者的边界划清，并给出 C++ 里不该再用裸数组的理由。</description>
+    </item>
+    <item>
+      <title>流程控制、函数与模块：把脚本拆成可复用的零件</title>
+      <link>https://freedomly1.github.io/blog/#/post/py-flow-module</link>
+      <guid isPermaLink="false">afei-py-flow-module</guid>
+      <pubDate>Mon, 16 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>脚本能跑和代码能用是两件事。这篇讲 if/for/while 的边界写法、函数参数的五种形态，以及怎么把一堆脚本拆成模块与包，最后给出一个可导入可运行的目录结构。</description>
+    </item>
+    <item>
+      <title>类、异常与文件：写能维护的 Python 程序</title>
+      <link>https://freedomly1.github.io/blog/#/post/py-oop</link>
+      <guid isPermaLink="false">afei-py-oop</guid>
+      <pubDate>Sun, 15 Nov 2026 09:00:00 -0000</pubDate>
+      <category>编程教程</category>
+      <description>类不是必须的，但它能把「数据 + 行为」绑在一起。这篇讲类的四个必备成员、异常的三种用法（捕获/抛出/自定义），以及文件与 JSON 读写的稳妥写法。</description>
     </item>
     <item>
       <title>RAII 与智能指针：C++ 里没有 finally，也不需要</title>
@@ -193,6 +257,7 @@
       <category>效率方法</category>
       <description>云端很方便，但「方便」不该以「失去控制权」为代价。这是我现在的工具组合，以及为此付出的代价。</description>
     </item>
+
 
 
 

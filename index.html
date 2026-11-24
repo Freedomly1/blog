@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>阿飞日记 · 本人很帅，想搭一个 AI 工作台</title>
-<meta name="description" content="阿飞日记，一个前端工程师的公开笔记。写界面与工程，也写正在折腾的 AI 工作台——把爬虫、笔记、写稿收进同一条流水线。">
+<title>阿飞观察站 · 本人很帅，想搭一个 AI 工作台</title>
+<meta name="description" content="阿飞观察站，一个前端工程师的公开笔记。写界面与工程，也写正在折腾的 AI 工作台——把爬虫、笔记、写稿收进同一条流水线。">
 <meta name="theme-color" content="#faf7f2">
 <meta property="og:type" content="website">
-<meta property="og:title" content="阿飞日记">
+<meta property="og:title" content="阿飞观察站">
 <meta property="og:description" content="一个前端工程师的公开笔记。写界面与工程，也写正在折腾的 AI 工作台。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231b1713'/%3E%3Cpath d='M16 7l2.6 6.4L25 16l-6.4 2.6L16 25l-2.6-6.4L7 16l6.4-2.6z' fill='%23f2ece2'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/style.css">
-<link rel="alternate" type="application/rss+xml" title="阿飞日记" href="feed.xml">
+<link rel="alternate" type="application/rss+xml" title="阿飞观察站" href="feed.xml">
 <script>
   (function () {
     try {
@@ -38,13 +38,13 @@
 
 <header class="site-head">
   <div class="wrap head-inner">
-    <a class="brand" href="#/" aria-label="阿飞日记 · 首页">
+    <a class="brand" href="#/" aria-label="阿飞观察站 · 首页">
       <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 2.6l2.5 6.9 6.9 2.5-6.9 2.5L12 21.4l-2.5-6.9L2.6 12l6.9-2.5z" fill="currentColor"/></svg>
       </span>
       <span class="brand-text">
-        <strong>阿飞日记</strong>
-        <small>AFEI DIARY</small>
+        <strong>阿飞观察站</strong>
+        <small>AFEI OBSERVER</small>
       </span>
     </a>
 
@@ -107,7 +107,7 @@
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M12 2.6l2.5 6.9 6.9 2.5-6.9 2.5L12 21.4l-2.5-6.9L2.6 12l6.9-2.5z" fill="currentColor"/></svg>
         </span>
-        <span class="brand-text"><strong>阿飞日记</strong><small>AFEI DIARY</small></span>
+        <span class="brand-text"><strong>阿飞观察站</strong><small>AFEI OBSERVER</small></span>
       </a>
       <p class="foot-desc">一个前端工程师的公开笔记。写界面与工程，也写正在折腾的 AI 工作台。纯静态、无追踪、无广告。</p>
     </div>
@@ -130,7 +130,7 @@
     </div>
   </div>
   <div class="wrap foot-bottom">
-    <span>© <span id="year">2026</span> 阿飞日记 · 用 HTML / CSS / JS 手写</span>
+    <span>© <span id="year">2026</span> 阿飞观察站 · 用 HTML / CSS / JS 手写</span>
     <span class="foot-meta"><a href="#/about">关于本站</a> · <a href="feed.xml">RSS</a></span>
   </div>
 </footer>
@@ -2478,6 +2478,1095 @@ Agent = **循环 + 工具 + 终止条件**。把它当工程问题而不是魔�
 ## 一句话总结
 
 AI 不会替你负责，它只是**把你的判断放大**。流程清晰、验收明确，它放大的是效率；流程混乱，它放大的是混乱。
+</script>
+
+
+<script type="text/markdown" id="md-cpp-start">
+很多人卡在第一步：装完编译器，不知道下一步该做什么。先把「一条链路」跑通，后面才有意义。
+
+## 一、装什么
+
+| 系统 | 装什么 | 验证命令 |
+| --- | --- | --- |
+| Windows | MinGW-w64（推荐 MSYS2）或 Visual Studio 的 C++ 工作负载 | `gcc --version` |
+| macOS | `xcode-select --install` | `clang --version` |
+| Linux | `sudo apt install build-essential` | `gcc --version` |
+
+看到版本号就算成功。**编译器不是编辑器**：写代码用 VS Code / CLion / 记事本都行，编译靠 `gcc`。
+
+## 二、第一个程序
+
+新建 `hello.c`：
+
+```c
+#include <stdio.h>   /* 引入标准输入输出库的声明 */
+
+int main(void) {     /* 程序入口，返回一个整数给操作系统 */
+    printf("Hello, 阿飞\n");
+    return 0;        /* 0 表示正常结束 */
+}
+```
+
+编译并运行：
+
+```bash
+gcc hello.c -o hello     # 编译：源文件 -> 可执行文件 hello
+./hello                  # 运行（Windows 下是 hello.exe，直接敲 hello）
+```
+
+输出：
+
+```
+Hello, 阿飞
+```
+
+## 三、这条命令拆开看
+
+```
+gcc    hello.c   -o hello
+ ↑        ↑        ↑
+编译器   源文件    输出文件名
+```
+
+一次 `gcc` 其实做了四件事：预处理 → 编译 → 汇编 → 链接。想看每一步：
+
+```bash
+gcc -E hello.c -o hello.i    # 只做预处理（展开 #include）
+gcc -S hello.i -o hello.s    # 生成汇编
+gcc -c hello.s -o hello.o    # 生成目标文件
+gcc hello.o   -o hello       # 链接成可执行文件
+```
+
+初学阶段不必背，但知道它分四步，后面理解“编译错误”和“链接错误”的区别会轻松很多。
+
+## 四、怎么读报错
+
+编译器报错是有格式的，读三段就够：
+
+```
+hello.c:3:5: error: expected ';' before 'return'
+   ↑      ↑ ↑    ↑                          ↑
+ 文件名  行 列  严重级别                    具体原因
+```
+
+- `error`：必须改，改完才能生成程序
+- `warning`：能编过，但很可能是 bug（**建议加 `-Wall` 把所有警告打开**）
+- 报错行号常常指向“发现问题的地方”，而不是“出错的地方”——少写一个分号，往往在下一行才报
+
+## 五、一个能交互的小程序
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    char name[32];
+    int age;
+
+    printf("你叫什么名字？");
+    if (scanf("%31s", name) != 1) return 1;   /* 限制宽度，防止越界 */
+
+    printf("你好，%s。你今年多大了？", name);
+    if (scanf("%d", &age) != 1) return 1;     /* 注意：整数要取地址 */
+
+    printf("%s，%d 岁，明年你就 %d 岁了。\n", name, age, age + 1);
+    return 0;
+}
+```
+
+两个关键点：
+1. `scanf` 读整数、浮点数必须传**地址**（`&age`）；读字符串数组名本身就是地址，不用 `&`
+2. `%31s` 里的 31 是“最多读 31 个字符”，留一位给结尾的 `\0`——不加宽度限制是缓冲区溢出的经典来源
+
+## 六、常见起步错误
+
+| 现象 | 原因 | 解决 |
+| --- | --- | --- |
+| `undefined reference to main` | 没有 `main` 或拼错 | 检查函数名与签名 |
+| `'stdio.h' file not found` | 编译器没装好/环境变量没配 | 重装工具链，确认 `gcc -v` 能找到头文件 |
+| 中文输出乱码（Windows） | 控制台编码与源文件不一致 | 源文件存 UTF-8，或 `chcp 65001` |
+| 程序一闪就关 | 双击运行没有终端停住 | 在终端里运行，或末尾加 `getchar()` |
+
+## 七、练习
+
+1. 把 `hello.c` 改成打印你的名字和今天的日期
+2. 用 `gcc -Wall -Wextra` 重新编译，把所有警告都改到零
+3. 故意删掉一个分号，观察报错行号指向哪里
+
+## 一句话总结
+
+先让**编译链跑通**，再学语法。你在终端里看到自己写的字被打印出来那一刻，学习曲线才真正开始。
+</script>
+
+
+<script type="text/markdown" id="md-cpp-types">
+变量不是“一个名字”，它是**一块有大小、有解释方式的内存**。类型决定这两件事。
+
+## 一、sizeof：亲手量一遍
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    printf("char      %zu 字节\n", sizeof(char));
+    printf("short     %zu 字节\n", sizeof(short));
+    printf("int       %zu 字节\n", sizeof(int));
+    printf("long      %zu 字节\n", sizeof(long));
+    printf("long long %zu 字节\n", sizeof(long long));
+    printf("float     %zu 字节\n", sizeof(float));
+    printf("double    %zu 字节\n", sizeof(double));
+    printf("pointer   %zu 字节\n", sizeof(void *));
+    return 0;
+}
+```
+
+64 位机器上典型输出：1 / 2 / 4 / 8 / 8 / 4 / 8 / 8。
+
+注意 `long` 在 Windows 是 4 字节、Linux 是 8 字节——**所以跨平台代码里慎用 `long`**，要确定宽度就用 `<stdint.h>` 的 `int32_t` / `int64_t`。
+
+## 二、整数溢出：不是“变大”，是“绕回去”
+
+```c
+#include <limits.h>
+int x = INT_MAX;      /* 2147483647 */
+x = x + 1;            /* 有符号溢出：未定义行为，常见结果是 -2147483648 */
+```
+
+无符号则是明确的模运算：
+
+```c
+unsigned char c = 255;
+c = c + 1;            /* 结果 0，模 256 */
+```
+
+两个实用结论：
+1. 用 `unsigned` 做循环变量要小心 `for (unsigned i = n; i >= 0; i--)` 会死循环（无符号永远 ≥ 0）
+2. 金额别用 `float`，用整数分或 `double`；`0.1 + 0.2 != 0.3` 是二进制浮点的固有特性
+
+## 三、char 存不存得下中文
+
+`char` 只有 1 字节，能表示 0–255。一个中文字符在 UTF-8 里占 3 字节，所以：
+
+```c
+char c = '中';        /* 编译可能通过，但只留下一个字节，后续输出必乱 */
+```
+
+字符串要按**字节序列**理解：`"中"` 是 3 个 `char` 加一个 `\0`，共 4 字节。
+
+```c
+printf("%zu\n", sizeof("中"));   /* 4 */
+```
+
+## 四、i++ 与 ++i
+
+```c
+int i = 0;
+int a = i++;   /* a = 0，i 变 1：先取值，再自增 */
+int b = ++i;   /* i 先变 2，b = 2 */
+```
+
+单独一行写 `i++;` 时两者没区别。差别只在“表达式里还要用这个值”时。团队代码里建议：**需要用到值时不要依赖自增顺序**，拆成两行更清楚。
+
+## 五、类型转换的两条铁律
+
+```c
+int a = 7, b = 2;
+double r = a / b;        /* 3.0，不是 3.5：先做整数除法再转 */
+double ok = (double)a / b;  /* 3.5：先转再除 */
+```
+
+```c
+printf("%d\n", 3.7);     /* 错：格式符与类型不匹配，输出垃圾 */
+printf("%.0f\n", 3.7);   /* 对 */
+```
+
+- **整数除法会截断**，要小数必须先转浮点
+- **`printf` 的格式符必须与参数类型一致**，编译器不检查（`-Wformat` 会警告，务必开）
+
+## 六、常量与命名
+
+```c
+const double PI = 3.1415926;   /* 推荐：有类型、可调试 */
+#define MAX 100                /* 宏：纯文本替换，没有类型 */
+
+enum Color { RED, GREEN, BLUE };  /* 一组相关常量，比裸数字可读 */
+```
+
+宏没有作用域也不做类型检查，能用 `const` / `enum` 就别用 `#define`。
+
+## 七、练习
+
+1. 打印所有整型的最大最小值（用 `<limits.h>`），验证你机器上的宽度
+2. 写 `int a = 2147483647; a++;` 并打印结果，解释你看到的数
+3. 用 `printf` 输出 `1/3` 的三种写法：整数除法、`float`、`double`，比较精度
+
+## 一句话总结
+
+类型的两个作用：**占多大地方**、**怎么解释这串二进制**。理解了这两点，溢出、截断、精度问题都不再神秘。
+</script>
+
+
+<script type="text/markdown" id="md-cpp-flow">
+控制流本身没有难点，难的是**边界**。把边界想清楚，代码就稳了。
+
+## 一、if：把“区间”写对
+
+```c
+/* 需求：分数 90 以上 A，80-89 B，70-79 C，其余 D */
+if (score >= 90)      grade = 'A';
+else if (score >= 80) grade = 'B';   /* 不用再写 score < 90，因为上面的分支已排除 */
+else if (score >= 70) grade = 'C';
+else                  grade = 'D';
+```
+
+两个习惯：
+1. **顺序检查**：`else if` 从上往下匹配，条件要按“从严格到宽松”排
+2. **浮点不要用 `==`**：`if (fabs(a - b) < 1e-9)` 才是比较相等
+
+```c
+/* 经典坑：= 与 == */
+if (x = 1) { }        /* 赋值，恒为真，编译器只给警告 */
+if (1 == x) { }       /* 把常量放左边，写错就编译报错 */
+```
+
+## 二、循环：三种写法各有适用场景
+
+```c
+/* 1. 次数确定 */
+for (int i = 0; i < n; i++) { sum += a[i]; }
+
+/* 2. 条件驱动，可能一次都不执行 */
+while (fgets(buf, sizeof buf, fp) != NULL) { process(buf); }
+
+/* 3. 至少执行一次 */
+do {
+    show_menu();
+    scanf("%d", &choice);
+} while (choice != 0);
+```
+
+`for` 里三个表达式都可省略，但省略条件就是死循环：
+
+```c
+for (;;) { ... }        /* 等价 while(1)，要靠 break 退出 */
+```
+
+## 三、break / continue 的边界
+
+```c
+for (int i = 0; i < 10; i++) {
+    if (i == 3) continue;   /* 跳过本次，i 仍会 ++ */
+    if (i == 8) break;      /* 直接跳出整个循环 */
+    printf("%d ", i);       /* 输出 0 1 2 4 5 6 7 */
+}
+```
+
+嵌套循环里 `break` **只跳出最内层**。要跳两层，用标志位或 `goto`（`goto` 在“多层退出”这一种场景是可接受的）。
+
+## 四、函数：接口先想清楚
+
+```c
+/* 计算数组平均值；n 为 0 时返回 0，避免除零 */
+double average(const double *a, int n) {
+    if (n <= 0) return 0.0;          /* 边界先处理，别放在最后 */
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) sum += a[i];
+    return sum / n;
+}
+```
+
+三条约定：
+1. `const` 修饰只读参数，表明“我不会改你的数据”
+2. 参数里带长度（`n`），不要指望函数能知道数组多长（数组会退化成指针）
+3. **失败要有返回值语义**：返回 `-1` / `NULL` / 设 `errno`，调用方必须检查
+
+## 五、递归：出口写在最前面
+
+```c
+/* 阶乘 */
+long fact(int n) {
+    if (n <= 1) return 1;        /* 出口：必须有，且要先判断 */
+    return n * fact(n - 1);
+}
+
+/* 斐波那契：朴素递归是指数级，n=40 就要等很久 */
+long fib(int n) {
+    if (n < 2) return n;
+    return fib(n - 1) + fib(n - 2);   /* 时间复杂度 O(2^n) */
+}
+```
+
+朴素 `fib` 慢的原因是**重复计算**。两种改法：
+
+```c
+/* 1. 加记忆化 */
+long memo[100] = {0};
+long fib2(int n) {
+    if (n < 2) return n;
+    if (memo[n]) return memo[n];
+    return memo[n] = fib2(n - 1) + fib2(n - 2);   /* O(n) */
+}
+
+/* 2. 改迭代 */
+long fib3(int n) {
+    long a = 0, b = 1;
+    for (int i = 0; i < n; i++) { long t = a + b; a = b; b = t; }
+    return a;
+}
+```
+
+递归深度也有上限：默认栈只有几 MB，递归一万层就会**栈溢出**（段错误）。深层递归改迭代。
+
+## 六、把三个东西拼起来：一个猜数字游戏
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main(void) {
+    srand((unsigned)time(NULL));
+    int target = rand() % 100 + 1, guess, tries = 0;
+
+    do {
+        printf("猜一个 1-100 的数：");
+        if (scanf("%d", &guess) != 1) return 1;
+        tries++;
+        if (guess < target)      puts("小了");
+        else if (guess > target) puts("大了");
+    } while (guess != target);
+
+    printf("对了，用了 %d 次。\n", tries);
+    return 0;
+}
+```
+
+## 七、练习
+
+1. 把猜数字改成“最多 7 次”，超时输出答案
+2. 写 `int max_of(const int *a, int n)`，用 `-Wall` 确保零警告
+3. 用递归和迭代各写一遍“反转字符串”，比较代码长度与可读性
+
+## 一句话总结
+
+控制流的可靠来自**边界明确**：if 想清区间、循环想清终止、递归先写出口。这三点做到了，逻辑题基本不会写出 bug。
+</script>
+
+
+<script type="text/markdown" id="md-cpp-stl">
+到了能写指针、能分文件的阶段，下一个台阶就是 STL。它的价值不是“少写代码”，而是**把容易出错的手工操作变成有约束的类型**。
+
+## 一、三大件
+
+| 组件 | 作用 | 例子 |
+| --- | --- | --- |
+| 容器 | 存数据 | `vector` `map` `set` `deque` |
+| 迭代器 | 统一的遍历接口 | `begin()` `end()` |
+| 算法 | 对区间做操作 | `sort` `find` `accumulate` |
+
+算法不认识容器，只认识迭代器区间 `[first, last)`——这是 STL 能用少数算法覆盖所有容器的原因。
+
+## 二、vector：默认就用它
+
+```cpp
+#include <vector>
+#include <algorithm>
+#include <numeric>
+
+std::vector<int> v{5, 2, 9, 1};
+
+v.push_back(7);                       // 尾部追加，均摊 O(1)
+std::sort(v.begin(), v.end());        // 1 2 5 7 9
+auto it = std::find(v.begin(), v.end(), 7);
+int sum = std::accumulate(v.begin(), v.end(), 0);
+
+for (int x : v) std::cout << x << ' ';   // 范围 for，最常用
+```
+
+`vector` 的三个要点：
+- 连续内存，`&v[0]` 可以当 C 数组传给老接口
+- 扩容会让**所有迭代器和指针失效**（容量按倍数增长）
+- 提前 `v.reserve(1000)` 能避免多次扩容拷贝
+
+## 三、map 与 unordered_map
+
+```cpp
+#include <map>
+#include <unordered_map>
+
+std::map<std::string, int> ordered;        // 红黑树：有序，O(log n)
+std::unordered_map<std::string, int> hash; // 哈希表：无序，平均 O(1)
+```
+
+选择标准很朴素：**要按 key 排序就 `map`，只查不排序就 `unordered_map`**。
+
+```cpp
+for (const auto &kv : ordered)         // kv.first 是 key，kv.second 是 value
+    std::cout << kv.first << "=" << kv.second << '\n';
+```
+
+注意 `m[key]` 在 key 不存在时会**插入一个默认值**。只想查不改，用 `find` 或 `contains`（C++20）：
+
+```cpp
+if (auto it = hash.find("kobe"); it != hash.end()) use(it->second);
+```
+
+## 四、模板：为什么写在头文件里
+
+```cpp
+template <typename T>
+T max_of(const std::vector<T> &xs) {
+    T best = xs[0];
+    for (const auto &x : xs) if (x > best) best = x;
+    return best;
+}
+
+max_of<int>({1, 2, 3});        // T = int
+max_of<double>({1.5, 2.5});    // T = double
+```
+
+模板不是“运行时通用的函数”，而是**编译器按需生成多份代码**。生成发生在使用处，所以必须让编译器在使用时看到完整定义——这就是“模板实现要放头文件”的真实原因（不是规定，是机制）。
+
+## 五、五个常见误用
+
+**1. 边遍历边删**
+
+```cpp
+// 错：it 失效，行为未定义
+for (auto it = v.begin(); it != v.end(); ++it)
+    if (*it < 0) v.erase(it);
+
+// 对：erase 返回下一个有效迭代器
+for (auto it = v.begin(); it != v.end(); )
+    it = (*it < 0) ? v.erase(it) : it + 1;
+```
+
+**2. 在循环里反复 `push_back` 不用 `reserve`**：容量反复翻倍，拷贝开销大。
+
+**3. 用 `[]` 访问不存在的 key**：会静默插入，逻辑错还看不出来。
+
+**4. `vector<bool>`**：这是特化版本，不是真正的 `bool` 数组，取地址会出问题。需要位图用 `std::bitset` 或 `vector<char>`。
+
+**5. 拿 `size()` 和 `int` 比较**：`size()` 返回无符号，`v.size() - 1` 在空容器上会变成极大值。
+
+```cpp
+for (int i = 0; i < (int)v.size(); i++)   // 显式转换，避免符号问题
+```
+
+## 六、算法比手写循环更清楚
+
+```cpp
+#include <algorithm>
+
+std::sort(v.begin(), v.end(), [](int a, int b) { return a > b; });  // 降序
+auto n = std::count_if(v.begin(), v.end(), [](int x) { return x % 2 == 0; });
+bool any = std::any_of(v.begin(), v.end(), [](int x) { return x > 100; });
+v.erase(std::remove_if(v.begin(), v.end(), [](int x) { return x < 0; }), v.end());
+```
+
+最后一行是经典的 **erase-remove 惯用法**：`remove_if` 只把要保留的元素挪到前面并返回新逻辑结尾，真正的删除要 `erase`。
+
+## 七、练习
+
+1. 读入 20 个整数，用 `vector` 去重（`sort` + `unique`）后输出
+2. 统计一段文本里每个单词出现的次数，分别用 `map` 和 `unordered_map` 实现，比较输出顺序
+3. 写一个 `template<typename T> void print_all(const std::vector<T>&)`，验证能打印 `int`、`double`、`std::string`
+
+## 一句话总结
+
+STL 的意义是**把内存管理交给类型系统**：你描述“要什么”，它负责“怎么放”。学会它，C++ 才从“危险的 C”变成“能写大项目的语言”。
+</script>
+
+
+<script type="text/markdown" id="md-py-start">
+Python 的优势是“写完就能跑”，但前置的三件事必须清楚：解释器版本、包管理、报错阅读。
+
+## 一、装什么
+
+| 系统 | 建议 | 验证 |
+| --- | --- | --- |
+| Windows | 官网安装包（勾选 Add to PATH） | `python --version` |
+| macOS | `brew install python` | `python3 --version` |
+| Linux | `sudo apt install python3 python3-pip` | `python3 --version` |
+
+**版本建议 3.10+**（能用到 `match`、更好的类型提示）。看到 `Python 3.x.x` 就算成功。
+
+一个常见混淆：
+
+```
+python  → 可能是 Python 2（老系统）
+python3 → 明确是 Python 3
+```
+
+统一用 `python3` 更保险。
+
+## 二、第一个脚本
+
+新建 `hello.py`：
+
+```python
+name = "阿飞"
+print(f"你好，{name}")
+print("今天是", 2026, "年")
+```
+
+运行：
+
+```bash
+python3 hello.py
+```
+
+```
+你好，阿飞
+今天是 2026 年
+```
+
+`f"..."` 是 f-string，`{}` 里可以直接写变量或表达式：
+
+```python
+price, qty = 19.9, 3
+print(f"合计 {price * qty:.2f} 元")   # :.2f 表示保留两位小数
+```
+
+## 三、交互式环境：验证想法最快
+
+```bash
+python3          # 进入 REPL
+>>> 1 + 1
+2
+>>> exit()
+```
+
+不确定某个函数怎么用的时候，REPL 比新建文件快得多：
+
+```python
+>>> help(str.split)
+>>> "a,b,c".split(",")
+['a', 'b', 'c']
+```
+
+## 四、包管理：pip 与虚拟环境
+
+```bash
+python3 -m venv .venv          # 建虚拟环境（每个项目一个）
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install requests           # 装包
+pip freeze > requirements.txt  # 记录依赖
+pip install -r requirements.txt
+```
+
+**为什么一定要用虚拟环境**：不同项目依赖不同版本，装在全局会互相打架。这个习惯从第一天就养成。
+
+## 五、读懂报错（这是最重要的技能）
+
+```
+Traceback (most recent call last):
+  File "hello.py", line 3, in <module>
+    print(name)
+NameError: name 'name' is not defined
+```
+
+从下往上读：
+1. **最后一行**是错误类型与原因：`NameError: name 'name' is not defined`
+2. **往上一行**是出错位置：`hello.py` 第 3 行
+3. 中间是调用栈（简单脚本可以忽略）
+
+四个新手最常遇到的错误：
+
+| 错误 | 典型原因 |
+| --- | --- |
+| `NameError` | 变量名拼错 / 用了未定义的变量 |
+| `IndentationError` | 缩进不一致（Tab 与空格混用） |
+| `TypeError` | 类型不匹配，如 `"1" + 1` |
+| `KeyError` | 字典里没有这个 key |
+
+## 六、一个小而完整的脚本
+
+读完一个文本文件，统计每个词出现的次数，输出前 5：
+
+```python
+from collections import Counter
+from pathlib import Path
+
+def top_words(path, n=5):
+    text = Path(path).read_text(encoding="utf-8")
+    words = text.replace("，", " ").replace("。", " ").split()
+    return Counter(words).most_common(n)
+
+if __name__ == "__main__":
+    for word, count in top_words("input.txt"):
+        print(f"{word}: {count}")
+```
+
+三个值得记住的点：
+- `Path.read_text(encoding="utf-8")` 比 `open()` 省事，中文不会乱码
+- `Counter` 一行完成计数
+- `if __name__ == "__main__":` 让这个文件既能被导入、也能直接运行
+
+## 七、练习
+
+1. 让脚本接收命令行参数（`sys.argv` 或 `argparse`），文件名从命令行传
+2. 故意制造一次 `KeyError`，练习从 Traceback 定位到行
+3. 建一个虚拟环境，装 `requests`，写三行代码请求一个网页并打印状态码
+
+## 一句话总结
+
+Python 没有编译步骤，所以**报错就是你的编译器**。学会读 Traceback，学习速度会快好几倍。
+</script>
+
+
+<script type="text/markdown" id="md-py-types">
+Python 里没有“声明类型”这一步，但每个值都有类型，且类型决定了它能做什么。
+
+## 一、五种常用容器，一句话区分
+
+| 类型 | 有序 | 可变 | 重复 | 典型用途 |
+| --- | --- | --- | --- | --- |
+| `str` | 是 | 否 | 允许 | 文本 |
+| `list` | 是 | 是 | 允许 | 一组有序数据 |
+| `tuple` | 是 | 否 | 允许 | 不可变的记录（坐标、返回多值） |
+| `dict` | 是（3.7+） | 是 | key 唯一 | 键值映射 |
+| `set` | 否 | 是 | 不允许 | 去重、集合运算 |
+
+## 二、字符串：最常用的 8 个操作
+
+```python
+s = "  Hello, Python  "
+
+s.strip()                 # 'Hello, Python'   去首尾空白
+s.lower()                 # 转小写
+s.replace("Python", "世界")  # 替换
+",".join(["a", "b"])      # 'a,b'  用分隔符拼接
+"a,b,c".split(",")        # ['a', 'b', 'c']
+s.startswith("  He")      # True
+f"{3.14159:.2f}"          # '3.14'  格式化
+"abc".upper().center(9, "-")  # '---ABC---'
+```
+
+**字符串不可变**：所有“修改”都返回新字符串。
+
+```python
+s = "abc"
+s[0] = "A"       # TypeError: 'str' object does not support item assignment
+s = "A" + s[1:]  # 正确写法
+```
+
+## 三、列表：增删改查
+
+```python
+xs = [3, 1, 2]
+
+xs.append(4)        # 尾部加
+xs.insert(0, 9)     # 头部插（O(n)，大列表避免）
+xs.extend([5, 6])   # 合并另一个列表
+xs.remove(1)        # 删除第一个值 1（按值）
+xs.pop()            # 弹出末尾（按位置）
+xs.sort()           # 原地排序
+sorted(xs, reverse=True)   # 返回新列表
+
+xs[1:3]             # 切片，左闭右开
+xs[::-1]            # 反转
+[x * 2 for x in xs if x > 2]   # 列表推导式
+```
+
+## 四、字典：查表与迭代
+
+```python
+user = {"name": "阿飞", "age": 18}
+
+user["name"]              # '阿飞'
+user.get("email", "-")    # '-'  不存在时给默认值，不抛异常
+user["email"] = "a@b.c"   # 新增
+user.keys(); user.values(); user.items()
+
+for k, v in user.items():
+    print(k, v)
+```
+
+**用 `get` 还是 `[]`**：确定 key 存在用 `[]`（出错能暴露问题），不确定用 `get`。
+
+## 五、set：去重与集合运算
+
+```python
+a, b = {1, 2, 3}, {3, 4}
+
+a | b    # 并集 {1,2,3,4}
+a & b    # 交集 {3}
+a - b    # 差集 {1,2}
+
+list(set([1, 2, 2, 3]))   # 去重（注意：不保证顺序）
+```
+
+## 六、可变与不可变：一个必踩的坑
+
+```python
+def add_item(x, items=[]):      # 错：默认参数只创建一次
+    items.append(x)
+    return items
+
+add_item(1)   # [1]
+add_item(2)   # [1, 2]  ← 期望是 [2]
+```
+
+正确写法：
+
+```python
+def add_item(x, items=None):
+    if items is None:
+        items = []
+    items.append(x)
+    return items
+```
+
+同理：
+
+```python
+a = [1, 2]
+b = a          # 同一个对象，改 b 会影响 a
+c = a.copy()   # 浅拷贝，改 c 不影响 a
+```
+
+## 七、怎么选：三问
+
+1. **要不要按 key 取值？** 要 → `dict`
+2. **要不要去重 / 做集合运算？** 要 → `set`
+3. **顺序重要吗？** 重要 → `list`；不需要修改 → `tuple`
+
+## 八、练习
+
+1. 统计一段文本里每个字出现的次数，输出前 10（用 `dict` 或 `Counter`）
+2. 有两个列表，求“都在里面”和“只在前者”的元素（用 `set`）
+3. 写一个函数 `merge(a, b)` 合并两个字典，重复 key 以后者为准（试试 `{**a, **b}`）
+
+## 一句话总结
+
+容器选择靠三个问题：**按键取值、要不要去重、顺序要紧吗**。选对了，代码短一半；选错了，性能和可读性都受损。
+</script>
+
+
+<script type="text/markdown" id="md-py-flow-module">
+能跑的脚本和能复用的代码，差在**结构**。这篇把控制流、函数、模块三件事串起来。
+
+## 一、控制流：Python 的写法习惯
+
+```python
+if score >= 90:
+    grade = "A"
+elif score >= 80:      # 不用再写 score < 90
+    grade = "B"
+else:
+    grade = "D"
+```
+
+Python 用**缩进表示代码块**，同一块必须一致（推荐 4 个空格，别和 Tab 混用）。
+
+```python
+for i in range(5):          # 0..4
+    print(i)
+
+for i, ch in enumerate("abc"):   # 同时拿下标和值
+    print(i, ch)
+
+for a, b in zip([1, 2], ["x", "y"]):   # 并行遍历
+    print(a, b)
+
+while queue:
+    task = queue.pop()
+    handle(task)
+```
+
+三个辅助语句：
+
+```python
+for x in xs:
+    if x < 0:
+        continue     # 跳过本次
+    if x > 100:
+        break        # 结束循环
+else:
+    print("循环正常跑完才会执行（没被 break）")   # for-else 很好用
+```
+
+## 二、函数：五种参数形态
+
+```python
+def f(a, b=2, *args, c=3, **kwargs):
+    # a      位置参数
+    # b      默认参数
+    # args   额外位置参数，收成 tuple
+    # c      仅关键字参数
+    # kwargs 额外关键字参数，收成 dict
+    return a, b, args, c, kwargs
+
+f(1)                          # (1, 2, (), 3, {})
+f(1, 5, 7, 8, c=9, d=10)      # (1, 5, (7, 8), 9, {'d': 10})
+```
+
+**默认参数别用可变对象**（`[]`、`{}`），它们只在定义时创建一次：
+
+```python
+def bad(x, acc=[]):        # 错
+    acc.append(x); return acc
+
+def good(x, acc=None):     # 对
+    acc = [] if acc is None else acc
+    acc.append(x); return acc
+```
+
+## 三、返回值：多值返回其实是 tuple
+
+```python
+def divide(a, b):
+    if b == 0:
+        return None, "除数不能为 0"
+    return a / b, None
+
+value, err = divide(6, 3)
+if err:
+    print(err)
+```
+
+比抛异常轻，但**别用来吞错误**——真的异常情况还是 `raise`。
+
+## 四、作用域：LEGB
+
+```
+Local → Enclosing → Global → Builtin
+```
+
+```python
+count = 0
+
+def inc():
+    global count      # 想改全局变量必须声明
+    count += 1
+
+def outer():
+    n = 0
+    def inner():
+        nonlocal n    # 改外层函数变量
+        n += 1
+    inner()
+    return n
+```
+
+不需要修改时，读全局变量不用声明。**能不用 `global` 就不用**——它让数据流向变难追踪。
+
+## 五、模块与包：从脚本到工程
+
+```
+project/
+├─ main.py
+├─ utils/
+│  ├─ __init__.py
+│  ├─ text.py
+│  └─ net.py
+└─ requirements.txt
+```
+
+```python
+# utils/text.py
+def clean(s: str) -> str:
+    return s.strip().lower()
+
+# main.py
+from utils.text import clean          # 绝对导入，推荐
+print(clean("  Hello  "))
+```
+
+三个要点：
+1. 目录里有 `__init__.py`（3.3+ 可以没有，但显式建更清楚）
+2. **用绝对导入**，相对导入（`from .text import`）只在包内部好用，跑脚本时容易报错
+3. 每个模块只做一件事，别写 `utils.py` 什么都往里塞
+
+## 六、让文件既能导入又能运行
+
+```python
+# utils/text.py
+def clean(s):
+    return s.strip().lower()
+
+if __name__ == "__main__":
+    # 只有直接 python text.py 时才执行，被 import 时不执行
+    print(clean("  Test  "))
+```
+
+这个小节是**工程化的起点**：函数可被复用，测试代码留在文件里不干扰调用方。
+
+## 七、练习
+
+1. 把上一篇的词频脚本拆成 `utils/text.py`（纯函数）+ `main.py`（命令行入口）
+2. 写一个 `retry(fn, times=3)` 函数，失败重试，用到 `*args, **kwargs` 透传
+3. 用 `for...else` 实现“在列表里找第一个偶数，找不到就打印提示”
+
+## 一句话总结
+
+函数让逻辑可复用，模块让代码可组合。**先写函数，再拆模块**，工程结构是长出来的，不是一开始就设计好的。
+</script>
+
+
+<script type="text/markdown" id="md-py-oop">
+到了要写几百行的阶段，函数会开始互相传一堆参数。类解决的就是这个问题：**把相关的数据和行为放在一起**。
+
+## 一、一个够用的类
+
+```python
+class Article:
+    # 一篇文章：标题、正文、标签
+
+    site = "阿飞观察站"        # 类属性：所有实例共享
+
+    def __init__(self, title: str, body: str, tags=None):
+        self.title = title                      # 实例属性
+        self.body = body
+        self.tags = list(tags or [])
+
+    def words(self) -> int:
+        return len(self.body)
+
+    def summary(self, n: int = 40) -> str:
+        text = self.body.replace("\n", " ")
+        return text[:n] + ("…" if len(text) > n else "")
+
+    def __repr__(self) -> str:                  # 打印时好看
+        return f"<Article {self.title!r} {self.words()} 字>"
+
+
+a = Article("科比与凌晨四点", "他每天四点起床训练……", ["人物"])
+print(a, a.summary())
+```
+
+四个必备成员：`__init__`（初始化）、普通方法、`__repr__`（调试友好）、类属性（共享常量）。
+
+## 二、继承与组合：优先组合
+
+```python
+class Draft(Article):                 # 继承：is-a
+    def __init__(self, title, body, tags=None):
+        super().__init__(title, body, tags)
+        self.published = False
+
+    def publish(self):
+        self.published = True
+
+class Site:                           # 组合：has-a，更常用
+    def __init__(self):
+        self.articles = []            # 站点“有”文章
+
+    def add(self, article):
+        self.articles.append(article)
+```
+
+判断标准：**“是”用继承，“有”用组合**。滥用继承会让改动一层层传下去，组合更容易替换。
+
+## 三、dataclass：只装数据的类
+
+```python
+from dataclasses import dataclass, field
+
+@dataclass
+class Point:
+    x: float
+    y: float = 0.0
+    tags: list = field(default_factory=list)   # 可变默认值要这样写
+```
+
+`@dataclass` 自动生成 `__init__`、`__repr__`、`__eq__`，省掉一堆样板代码。
+
+## 四、异常：三种用法
+
+**1. 捕获：只捕你能处理的**
+
+```python
+try:
+    n = int(input("数字："))
+except ValueError:
+    print("不是合法数字")
+else:
+    print("输入了", n)      # 没异常才执行
+finally:
+    print("无论如何都执行")
+```
+
+**2. 抛出：把问题交给上层**
+
+```python
+def load(path):
+    if not path.exists():
+        raise FileNotFoundError(f"找不到文件：{path}")
+    return path.read_text(encoding="utf-8")
+```
+
+**3. 自定义：让调用方能区分错误**
+
+```python
+class ConfigError(Exception):
+    pass
+
+def parse(cfg):
+    if "port" not in cfg:
+        raise ConfigError("缺少 port 字段")
+```
+
+三个反模式：
+- `except Exception: pass` —— 静默吞掉一切，bug 从此消失（其实是藏起来）
+- 用 `try/except` 代替 `if` 判空 —— 可读性差
+- 捕获后不记录 —— 出问题无从排查
+
+## 五、文件与 JSON：安全的读写
+
+```python
+from pathlib import Path
+import json
+
+p = Path("data/articles.json")
+
+# 读
+if p.exists():
+    data = json.loads(p.read_text(encoding="utf-8"))
+
+# 写：先写临时文件再替换，避免写到一半崩溃留个坏文件
+tmp = p.with_suffix(".tmp")
+tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+tmp.replace(p)
+```
+
+两个细节：
+- `ensure_ascii=False` 让中文不被转成 `\uXXXX`
+- `tmp.replace(p)` 是原子操作，比直接覆盖安全
+
+## 六、上下文管理器：with 帮你收尾
+
+```python
+with open("a.txt", "w", encoding="utf-8") as f:
+    f.write("hello")
+# 离开 with 自动 close，即使中途抛异常
+```
+
+自己写一个也不难：
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def timer(label):
+    import time
+    t0 = time.perf_counter()
+    yield
+    print(f"{label} 用时 {time.perf_counter() - t0:.3f}s")
+
+with timer("解析"):
+    do_something()
+```
+
+## 七、练习
+
+1. 用 `@dataclass` 定义 `Article`，加 `words` 与 `summary` 方法
+2. 写一个 `load_articles(path)`，文件不存在抛 `FileNotFoundError`，JSON 坏了抛 `ValueError`
+3. 用 `contextmanager` 写一个 `chdir(path)`，进入目录后自动切回
+
+## 一句话总结
+
+类的价值是**把散落的参数收进一个概念里**；异常的价值是**让错误有明确出口**；文件操作的价值是**出问题时不留半成品**。这三件事做好，Python 代码才开始“可维护”。
 </script>
 
 

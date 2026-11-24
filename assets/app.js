@@ -1,5 +1,5 @@
 /* =========================================================
-   阿飞日记 · 应用逻辑
+   阿飞观察站 · 应用逻辑
    无依赖、无构建：路由 / Markdown / 搜索 / 评论 / 收藏
    ========================================================= */
 (function () {
@@ -47,6 +47,7 @@
       date: p.date,
       dateObj: parseDate(p.date),
       category: p.category,
+      level: p.level || '',
       tags: p.tags || [],
       c1: p.c1,
       c2: p.c2,
@@ -296,6 +297,10 @@
   function tagHref(t) { return '#/tag/' + encodeURIComponent(t); }
 
   /* ---------------- 通用片段 ---------------- */
+  function lvKey(lv) {
+    return lv === '基础' ? 'basic' : (lv === '进阶' ? 'mid' : 'pro');
+  }
+
   function cover(p, extraClass) {
     // p.cover 有值时用图片封面，否则退回纯 CSS 渐变（老数据不受影响）
     var cls = 'cover ' + (extraClass || '') + (p.cover ? ' has-img' : '');
@@ -327,7 +332,7 @@
       '<span class="book-info">' +
       '<strong class="bc-name">' + esc(b.title) + '</strong>' +
       '<span class="bc-sub">' + esc(b.author) + ' · ' + esc(b.year) + '</span>' +
-      '<span class="bc-row"><span class="stars">' + stars(b.rating) + '</span><span class="bc-field">' + esc(b.field) + '</span></span>' +
+      '<span class="bc-row"><span class="stars">' + stars(b.rating) + '</span><span class="bc-field">' + esc(b.field) + '</span>' + (p.level ? '<span class="bc-lv">' + esc(p.level) + '</span>' : '') + '</span>' +
       '<span class="bc-note">' + esc(b.note) + '</span>' +
       '<span class="bc-link">阅读全文 →</span>' +
       '</span></a>';
@@ -574,6 +579,7 @@
 
       '<header class="article-head">' +
       '<span class="kicker">' + esc(p.category) + '</span>' +
+      (p.level ? '<span class="kicker lv lv-' + lvKey(p.level) + '">' + esc(p.level) + '</span>' : '') +
       '<h1 class="article-title">' + esc(p.title) + '</h1>' +
       '<p class="article-lede">' + esc(p.excerpt) + '</p>' +
       '<div class="article-meta">' +
@@ -828,7 +834,7 @@
     var r = parseHash();
     var segs = r.segs;
     var html = '';
-    var title = SITE.name || '阿飞日记';
+    var title = SITE.name || '阿飞观察站';
     var navKey = '';
 
     if (segs.length === 0 || (segs.length === 1 && segs[0] === '')) {

@@ -2253,3 +2253,28 @@ html, body { overflow-x: hidden; }
 .loader.is-static .loader-flare { opacity: .5; }
 .loader.is-static .loader-arc path { stroke-dashoffset: 0; opacity: .8; }
 .loader.is-static .loader-bar i { animation: none !important; transform: scaleX(1); }
+
+/* 教程级别徽标：基础 / 进阶 / 高级 */
+.kicker.lv {
+  margin-left: 10px;
+  letter-spacing: .08em;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 10.5px;
+  text-transform: none;
+  vertical-align: 1px;
+}
+.kicker.lv-basic { color: #7dd3a0; border-color: rgba(125, 211, 160, .45); background: rgba(125, 211, 160, .10); }
+.kicker.lv-mid   { color: #f2c14e; border-color: rgba(242, 193, 78, .45); background: rgba(242, 193, 78, .10); }
+.kicker.lv-pro   { color: #c4a2ff; border-color: rgba(196, 162, 255, .45); background: rgba(196, 162, 255, .12); }
+
+.bc-lv {
+  font-size: 10.5px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  white-space: nowrap;
+}
