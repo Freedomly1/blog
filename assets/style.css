@@ -1945,3 +1945,13 @@ a.tag:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accen
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
+
+/* 目录在照片上同样加轻底 */
+.toc {
+  border-left: 0;
+  padding: 16px 18px;
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
