@@ -2091,3 +2091,163 @@ html, body { overflow-x: hidden; }
   z-index: 1;
   text-shadow: 0 1px 12px rgba(0,0,0,.75);
 }
+
+/* =========================================================
+   路由过场：扣篮加载层
+   ========================================================= */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  visibility: hidden;
+  background:
+    radial-gradient(760px 520px at 50% 34%, rgba(139, 92, 246, .28), transparent 70%),
+    rgba(13, 8, 24, .96);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: opacity .3s var(--ease), visibility 0s linear .3s;
+}
+.loader.on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .18s var(--ease), visibility 0s;
+}
+.loader.out { opacity: 0; }
+
+.loader-stage {
+  width: min(420px, 78vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.loader-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: 0 30px 70px -28px rgba(0, 0, 0, .8), 0 0 0 1px rgba(242, 193, 78, .18);
+  transform: scale(1.06);
+  opacity: 0;
+}
+.loader.on .loader-art {
+  animation: slam 620ms cubic-bezier(.2, .9, .2, 1) forwards;
+}
+@keyframes slam {
+  0%   { transform: scale(1.22) translateY(-10px); opacity: 0; }
+  55%  { transform: scale(1.02) translateY(2px); opacity: 1; }
+  70%  { transform: scale(1.04) translateY(-1px); }
+  100% { transform: scale(1.01) translateY(0); opacity: 1; }
+}
+.loader-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(1.05) contrast(1.05);
+}
+.loader-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 8, 24, .1), rgba(13, 8, 24, .55));
+}
+
+/* 篮球从左上砸向篮筐 */
+.loader-ball {
+  position: absolute;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  left: 12%;
+  top: 16%;
+  background: radial-gradient(circle at 32% 30%, #f0a35c, #b5541f 70%);
+  box-shadow: 0 0 22px rgba(240, 163, 92, .55);
+  opacity: 0;
+}
+.loader.on .loader-ball { animation: ballDrop 620ms cubic-bezier(.5, 0, .8, .5) forwards; }
+@keyframes ballDrop {
+  0%   { opacity: 0; transform: translate(0, 0) scale(.7); }
+  20%  { opacity: 1; }
+  70%  { opacity: 1; transform: translate(56%, 118%) scale(1); }
+  85%  { opacity: 1; transform: translate(58%, 112%) scale(.92); }
+  100% { opacity: 0; transform: translate(58%, 122%) scale(.8); }
+}
+
+.loader-flare {
+  position: absolute;
+  inset: auto -10% -40% -10%;
+  height: 70%;
+  background: radial-gradient(ellipse at 50% 100%, rgba(242, 193, 78, .42), transparent 68%);
+  opacity: 0;
+}
+.loader.on .loader-flare { animation: flare 700ms ease-out .18s forwards; }
+@keyframes flare {
+  0% { opacity: 0; transform: translateY(12%); }
+  60% { opacity: 1; }
+  100% { opacity: .55; transform: translateY(0); }
+}
+
+.loader-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .8;
+}
+.loader.on .loader-arc path { animation: arcDraw 620ms ease-out forwards; }
+@keyframes arcDraw {
+  from { stroke-dashoffset: 260; opacity: 0; }
+  to   { stroke-dashoffset: 0; opacity: 1; }
+}
+.loader-arc path { stroke-dashoffset: 260; }
+
+.loader-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: color-mix(in srgb, var(--accent) 92%, #fff);
+}
+.loader-meta span {
+  color: rgba(246, 242, 235, .55);
+  letter-spacing: .12em;
+  font-size: 10.5px;
+}
+
+.loader-bar {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, .12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.loader-bar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #b794f6, #f2c14e);
+}
+.loader.on .loader-bar i { animation: barFill 560ms cubic-bezier(.3, .7, .3, 1) forwards; }
+@keyframes barFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* 尊重「减少动态效果」：保留过场但不播动画（静态帧） */
+.loader.is-static .loader-art,
+.loader.is-static .loader-ball,
+.loader.is-static .loader-flare { animation: none !important; }
+.loader.is-static .loader-art { opacity: 1; transform: none; }
+.loader.is-static .loader-ball { opacity: 0; }
+.loader.is-static .loader-flare { opacity: .5; }
+.loader.is-static .loader-arc path { stroke-dashoffset: 0; opacity: .8; }
+.loader.is-static .loader-bar i { animation: none !important; transform: scaleX(1); }

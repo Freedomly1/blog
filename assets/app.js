@@ -1306,7 +1306,50 @@
   });
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('hashchange', render);
+
+  /* ---------------- 路由过场（扣篮加载层） ---------------- */
+  var loaderEl = null;
+  var loaderTimers = [];
+
+  function clearLoaderTimers() {
+    loaderTimers.forEach(function (t) { clearTimeout(t); });
+    loaderTimers = [];
+  }
+
+  function showLoader() {
+    if (!loaderEl) loaderEl = document.getElementById('loader');
+    if (!loaderEl) return;
+    clearLoaderTimers();
+    loaderEl.classList.remove('out');
+    // 过场是用户明确要求的品牌动效：即使系统开了「减少动态效果」也照常播放，
+    // 时长控制在 0.6s 内，不做长时间动效。
+    loaderEl.classList.remove('is-static');
+    loaderEl.classList.add('on');
+    loaderEl.setAttribute('aria-hidden', 'false');
+    // 最短展示 560ms，再淡出 300ms；连续点击时会被上面的 clear 重置
+    loaderTimers.push(setTimeout(function () {
+      if (loaderEl) loaderEl.classList.add('out');
+    }, 600));
+    loaderTimers.push(setTimeout(function () {
+      if (!loaderEl) return;
+      loaderEl.classList.remove('on', 'out');
+      loaderEl.setAttribute('aria-hidden', 'true');
+    }, 920));
+  }
+
+  var firstRender = true;
+  function renderWithLoader() {
+    // 首次进入不放过场，避免开局就糊一层
+    if (firstRender) {
+      firstRender = false;
+      render();
+      return;
+    }
+    showLoader();
+    render();
+  }
+
+  window.addEventListener('hashchange', renderWithLoader);
 
   /* ---------------- 初始化 ---------------- */
   function init() {
@@ -1323,6 +1366,7 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
     render();
+    firstRender = false;   // 首屏已渲染，后续导航都要显示过场
   }
 
   if (document.readyState === 'loading') {
