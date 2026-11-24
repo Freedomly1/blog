@@ -1965,7 +1965,7 @@ a.tag:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accen
 /* 1. 页面底色：纯暗色 + 极淡的紫金辉光，不再铺照片 */
 body {
   /* 科比球场图做背景：图挂了自动退回纯色 */
-  background: url("bg-court.jpg") center top / cover no-repeat fixed, var(--bg);
+  background: url("bg-kobe.jpg") center top / cover no-repeat fixed, var(--bg);
 }
 body::before {
   background:
@@ -1983,7 +1983,7 @@ body::before {
   isolation: isolate;
   background-image: url("bg-kobe.jpg");
   background-size: cover;
-  background-position: center 32%;
+  background-position: center 6%;
   background-repeat: no-repeat;
   border-bottom: 1px solid var(--line-2);
 }

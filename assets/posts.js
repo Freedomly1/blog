@@ -174,7 +174,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-23-red.jpg',
     bookCover: 'assets/covers/book-8-purple.jpg',
     book: { title: 'C Primer Plus', author: 'Stephen Prata', year: '2013', field: 'C/C++', rating: 5, note: '最稳的 C 入门书，讲清了每个语法背后的内存行为。' }
-  },,
+  },
   {
     slug: 'cpp-pointers-arrays',
     title: '数组和指针不是一回事：那些被 sizeof 骗过的时刻',
@@ -187,7 +187,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-33-green.jpg',
     bookCover: 'assets/covers/book-32-gold.jpg',
     book: { title: 'C++ Primer', author: 'Stanley Lippman', year: '2012', field: 'C/C++', rating: 5, note: '讲 C++ 最系统的一本，第 3、4 章把数组与指针的边界说得极清楚。' }
-  },,
+  },
   {
     slug: 'cpp-raii',
     title: 'RAII 与智能指针：C++ 里没有 finally，也不需要',
@@ -200,7 +200,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-06-purple.jpg',
     bookCover: 'assets/covers/book-21-silver.jpg',
     book: { title: 'Effective Modern C++', author: 'Scott Meyers', year: '2014', field: 'C/C++', rating: 5, note: '第 4 章讲智能指针，把所有权语义讲成了决策树。' }
-  },,
+  },
   {
     slug: 'cpp-build',
     title: '从 .cpp 到可执行文件：undefined reference 到底在骂谁',
@@ -213,7 +213,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-books.jpg',
     bookCover: 'assets/covers/book-34-power.jpg',
     book: { title: '深入理解计算机系统', author: 'Randal Bryant', year: '2016', field: 'C/C++', rating: 5, note: '第 7 章链接，把 undefined reference 的来龙去脉讲透了。' }
-  },,
+  },
   {
     slug: 'py-containers',
     title: 'list、dict、set 的底层：为什么 dict 查找是 O(1)',
@@ -226,7 +226,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-night-court.jpg',
     bookCover: 'assets/covers/book-3-blue.jpg',
     book: { title: 'Python 编程：从入门到实践', author: 'Eric Matthes', year: '2019', field: 'Python', rating: 5, note: '第 3-4 章列容器，配着这张复杂度表看会通透很多。' }
-  },,
+  },
   {
     slug: 'py-generators',
     title: '生成器与迭代器：yield 到底暂停了什么',
@@ -239,7 +239,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-street-hoop.jpg',
     bookCover: 'assets/covers/book-32-gold.jpg',
     book: { title: '流畅的 Python', author: 'Luciano Ramalho', year: '2022', field: 'Python', rating: 5, note: '第 17 章迭代器与生成器，是目前讲得最深的中文可读材料。' }
-  },,
+  },
   {
     slug: 'py-decorators',
     title: '装饰器：从闭包到带参数的装饰器，一次讲透',
@@ -252,7 +252,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-23-red.jpg',
     bookCover: 'assets/covers/book-21-silver.jpg',
     book: { title: 'Python Cookbook', author: 'David Beazley', year: '2013', field: 'Python', rating: 5, note: '第 9 章元编程，装饰器写法的权威参考。' }
-  },,
+  },
   {
     slug: 'py-gil',
     title: 'GIL 与并发选型：线程、进程、asyncio 到底选哪个',
@@ -265,7 +265,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-33-green.jpg',
     bookCover: 'assets/covers/book-41-navy.jpg',
     book: { title: 'Python 高性能编程', author: 'Micha Gorelick', year: '2020', field: 'Python', rating: 4, note: '把 GIL、多进程、异步的边界画得很清楚，配实测数据看更直观。' }
-  },,
+  },
   {
     slug: 'ai-prompt',
     title: '提示词工程：把「说清楚」变成可复用的模板',
@@ -278,7 +278,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-06-purple.jpg',
     bookCover: 'assets/covers/book-8-purple.jpg',
     book: { title: 'Prompt Engineering Guide', author: 'OpenAI 官方文档', year: '2024', field: 'AI', rating: 5, note: '最权威的入门材料，重点是里面的失败案例。' }
-  },,
+  },
   {
     slug: 'ai-rag',
     title: 'RAG 不是「把文档丢进去」：切块、检索、重排的细节决定效果',
@@ -291,7 +291,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-books.jpg',
     bookCover: 'assets/covers/book-32-gold.jpg',
     book: { title: 'Contextual Retrieval', author: 'Anthropic 技术报告', year: '2024', field: 'AI', rating: 5, note: '讲清了「切块加语境」和「混合检索」各自的收益量级。' }
-  },,
+  },
   {
     slug: 'ai-agent',
     title: 'Agent 的本质是一个循环：工具、观察、终止条件',
@@ -304,7 +304,7 @@ window.BLOG_POSTS = [
     cover: 'assets/covers/cover-night-court.jpg',
     bookCover: 'assets/covers/book-34-power.jpg',
     book: { title: 'ReAct: Synergizing Reasoning and Acting', author: 'Yao et al.', year: '2022', field: 'AI', rating: 5, note: 'Agent 循环的原始论文，短小但把「推理-行动」交替说透了。' }
-  },,
+  },
   {
     slug: 'ai-workflow',
     title: '把 AI 放进日常工作流：三个真用得上的场景和一条铁律',
