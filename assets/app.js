@@ -582,24 +582,53 @@
       .map(function (o) { return o.x; });
   }
 
-  function commentsBody(slug) {
-    var list = store.get('comments:' + slug, []);
-    if (!list.length) {
-      return '<div class="empty">还没有评论。说点什么吧，哪怕只是一句「看完了」。</div>';
+  /* ---------------- 评论：giscus（存在仓库的 GitHub Discussions 里） ---------------- */
+  var GISCUS = {
+    repo: 'Freedomly1/blog',
+    repoId: 'R_kgDOV4t4NQ',
+    category: 'General',
+    categoryId: 'DIC_kwDOV4t4Nc4DL66V',
+    termPrefix: 'post:',
+    lang: 'zh-CN'
+  };
+
+  function giscusTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+
+  function mountGiscus(mount) {
+    var slug = mount.getAttribute('data-slug') || '';
+    mount.innerHTML = '';
+    if (!GISCUS.categoryId) {
+      mount.innerHTML = '<p class="empty">评论区还在配置中，稍后刷新这个页面。</p>';
+      return;
     }
-    return '<ul class="comment-list">' + list.map(function (c) {
-      var h = 0;
-      for (var i = 0; i < c.name.length; i++) h = (h * 31 + c.name.charCodeAt(i)) % 360;
-      return '<li class="comment">' +
-        '<div class="c-avatar" style="--h:' + h + '">' + esc(c.name.charAt(0).toUpperCase()) + '</div>' +
-        '<div class="c-body">' +
-        '<div class="c-head"><strong>' + esc(c.name) + '</strong><time>' + relTime(c.ts) + '</time></div>' +
-        '<p class="c-text">' + esc(c.text).replace(/\n/g, '<br>') + '</p>' +
-        '<div class="c-actions">' +
-        '<button type="button" data-action="reply" data-name="' + esc(c.name) + '">回复</button>' +
-        '<button type="button" data-action="del-comment" data-slug="' + esc(slug) + '" data-cid="' + esc(c.id) + '">删除</button>' +
-        '</div></div></li>';
-    }).join('') + '</ul>';
+    var s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    s.setAttribute('data-repo', GISCUS.repo);
+    s.setAttribute('data-repo-id', GISCUS.repoId);
+    s.setAttribute('data-category', GISCUS.category);
+    s.setAttribute('data-category-id', GISCUS.categoryId);
+    s.setAttribute('data-mapping', 'specific');
+    s.setAttribute('data-term', GISCUS.termPrefix + slug);
+    s.setAttribute('data-reactions-enabled', '1');
+    s.setAttribute('data-emit-metadata', '0');
+    s.setAttribute('data-input-position', 'top');
+    s.setAttribute('data-theme', giscusTheme());
+    s.setAttribute('data-lang', GISCUS.lang);
+    s.setAttribute('data-loading', 'lazy');
+    mount.appendChild(s);
+  }
+
+  function syncGiscusTheme() {
+    var f = document.querySelector('iframe.giscus-frame');
+    if (!f || !f.contentWindow) return;
+    f.contentWindow.postMessage(
+      { giscus: { setConfig: { theme: giscusTheme() } } },
+      'https://giscus.app'
+    );
   }
 
   function viewPost(p) {
@@ -609,8 +638,6 @@
     var liked = store.get('liked', []).indexOf(p.slug) > -1;
     var saved = store.get('bookmarks', []).indexOf(p.slug) > -1;
     var likes = p.no * 6 + 4 + (liked ? 1 : 0);
-    var comments = store.get('comments:' + p.slug, []);
-    var name = store.get('commenter', '');
     var rel = relatedPosts(p, 3);
 
     var article = p.markdown ? mdToHtml(p.markdown) : '<p>这篇文章的正文还没有添加。</p>';
@@ -673,15 +700,8 @@
       '</section>' +
 
       '<section class="comments" id="comments">' +
-      '<div class="sec-head"><h2>评论 <span class="count">' + comments.length + '</span></h2>' +
-      '<span class="more">仅保存在你自己的浏览器</span></div>' +
-      '<form class="comment-form" data-comment-form data-slug="' + p.slug + '">' +
-      '<input name="name" maxlength="20" placeholder="你的昵称" value="' + esc(name) + '" required>' +
-      '<textarea name="text" maxlength="600" placeholder="说点什么…（Ctrl + Enter 发送）" required></textarea>' +
-      '<div class="form-foot"><span class="hint">评论保存在 localStorage，换设备不会同步</span>' +
-      '<button class="btn" type="submit">发表评论</button></div>' +
-      '</form>' +
-      '<div id="commentList">' + commentsBody(p.slug) + '</div>' +
+      '<div class="sec-head"><h2>评论</h2><span class="more">用 GitHub 账号登录后发言，会同步给所有人</span></div>' +
+      '<div class="giscus" id="giscusMount" data-slug="' + esc(p.slug) + '"></div>' +
       '</section>' +
 
       '</article></div>';
@@ -812,7 +832,7 @@
       '<div class="block"><h2>联系</h2>' +
       '<p>最有效的方式是邮件：<a href="mailto:' + esc(SITE.email) + '" style="color:var(--accent)">' + esc(SITE.email) + '</a>。</p>' +
       '<p>写代码、做设计、读书笔记都聊。如果是文章里的错误，欢迎直接指出，我会在文末标注修订。</p>' +
-      '<p style="color:var(--muted);font-size:13px">本站不设留言审核，也没有后台——所有评论都存在你自己的浏览器里，刷新还在，换设备就不在。</p>' +
+      '<p style="color:var(--muted);font-size:13px">评论区接在仓库的 GitHub Discussions 上：用 GitHub 账号登录就能发言，所有人都看得到，也不会有广告。</p>' +
       '<div class="actions" style="margin-top:18px">' +
       '<button class="act" data-action="copy" data-text="' + esc(SITE.email) + '">复制邮箱</button>' +
       '<a class="act" href="feed.xml">订阅 RSS</a></div>' +
@@ -969,6 +989,8 @@
       var bar = $('#progressBar');
       if (bar) bar.style.width = '0%';
     }
+    var g = $('#giscusMount');
+    if (g) mountGiscus(g);
     updateProgress();
     updateToTop();
   }
@@ -1037,6 +1059,7 @@
     store.set('theme', theme);
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', theme === 'dark' ? '#141210' : '#faf7f2');
+    syncGiscusTheme();
   }
   function toggleTheme() {
     var cur = document.documentElement.getAttribute('data-theme');
@@ -1132,49 +1155,6 @@
     if (p) document.title = p.title + ' · ' + SITE.name;
   }
 
-  /* ---------------- 评论 ---------------- */
-  function submitComment(form) {
-    var slug = form.getAttribute('data-slug');
-    var name = (form.elements.name.value || '').trim();
-    var text = (form.elements.text.value || '').trim();
-    if (!name) { toast('写个昵称吧'); form.elements.name.focus(); return; }
-    if (!text) { toast('评论还是空的'); form.elements.text.focus(); return; }
-
-    var list = store.get('comments:' + slug, []);
-    list.unshift({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
-      name: name.slice(0, 20),
-      text: text.slice(0, 600),
-      ts: Date.now()
-    });
-    store.set('comments:' + slug, list);
-    store.set('commenter', name);
-
-    form.elements.text.value = '';
-    var wrap = $('#commentList');
-    if (wrap) wrap.innerHTML = commentsBody(slug);
-    var count = $('.comments .count');
-    if (count) count.textContent = list.length;
-    toast('评论已保存到本机');
-  }
-
-  function deleteComment(slug, cid) {
-    var list = store.get('comments:' + slug, []).filter(function (c) { return c.id !== cid; });
-    store.set('comments:' + slug, list);
-    var wrap = $('#commentList');
-    if (wrap) wrap.innerHTML = commentsBody(slug);
-    var count = $('.comments .count');
-    if (count) count.textContent = list.length;
-    toast('已删除');
-  }
-
-  function replyTo(name) {
-    var ta = $('.comment-form textarea');
-    if (!ta) return;
-    ta.value = '@' + name + ' ' + ta.value.replace(/^@\S+\s*/, '');
-    ta.focus();
-    ta.setSelectionRange(ta.value.length, ta.value.length);
-  }
 
   /* ---------------- 搜索 ---------------- */
   var searchIndex = posts.map(function (p) {
@@ -1296,10 +1276,6 @@
           setTimeout(function () { scope.textContent = old; }, 1600);
         }
       }
-      else if (action === 'reply') { replyTo(scope.getAttribute('data-name')); }
-      else if (action === 'del-comment') {
-        if (confirm('删除这条评论？')) deleteComment(scope.getAttribute('data-slug'), scope.getAttribute('data-cid'));
-      }
       return;
     }
 
@@ -1319,13 +1295,6 @@
     }
 
     if (e.target.closest('#drawer a')) closeMenu();
-  });
-
-  document.addEventListener('submit', function (e) {
-    var form = e.target.closest('[data-comment-form]');
-    if (!form) return;
-    e.preventDefault();
-    submitComment(form);
   });
 
   document.addEventListener('keydown', function (e) {
@@ -1353,11 +1322,6 @@
     if (e.key === '/' && !typing) {
       e.preventDefault();
       openSearch();
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      var f = document.activeElement && document.activeElement.closest('[data-comment-form]');
-      if (f) { e.preventDefault(); submitComment(f); }
     }
   });
 
